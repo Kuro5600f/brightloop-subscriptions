@@ -1,5 +1,7 @@
+from werkzeug.urls import url_encode
+
 from odoo import http
-from odoo.exceptions import AccessError, MissingError
+from odoo.exceptions import AccessError, MissingError, UserError
 from odoo.http import request
 
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
@@ -38,4 +40,29 @@ class BlPortal(CustomerPortal):
             'sub': sub,
             'invoices': sub.invoice_ids.filtered(lambda m: m.state == 'posted'),
             'page_name': 'bl_subscription',
+            'error': kw.get('error'),
+            'message': kw.get('message'),
         })
+
+    PORTAL_ACTIONS = {
+        'pause': ('action_pause', "Subscription paused."),
+        'resume': ('action_resume', "Subscription resumed."),
+        'close': ('action_close', "Subscription closed."),
+    }
+
+    @http.route('/my/subscriptions/<int:sub_id>/<string:action>', type='http', auth='user',
+                methods=['POST'], website=True)
+    def portal_manage_subscription(self, sub_id, action, **kw):
+        if action not in self.PORTAL_ACTIONS:
+            return request.redirect('/my/subscriptions')
+        try:
+            sub = self._document_check_access('bl.subscription', sub_id)  # own records only
+        except (AccessError, MissingError):
+            return request.redirect('/my')
+        method, message = self.PORTAL_ACTIONS[action]
+        try:
+            # same lifecycle guards and plan rules as the backend buttons
+            getattr(sub, method)()
+        except UserError as e:
+            return request.redirect('/my/subscriptions/%s?%s' % (sub_id, url_encode({'error': str(e)})))
+        return request.redirect('/my/subscriptions/%s?%s' % (sub_id, url_encode({'message': message})))

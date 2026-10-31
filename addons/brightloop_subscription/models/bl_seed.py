@@ -33,6 +33,8 @@ class BlSubscriptionSeed(models.Model):
         ref('discount_bl_analytics').product_ids = [(6, 0, analytics.ids)]
 
         monthly, yearly, weekly = ref('plan_bl_monthly'), ref('plan_bl_yearly'), ref('plan_bl_weekly')
+        # yearly is cheaper than 12 x monthly: plan-specific price per seat
+        yearly.price_ids = [(0, 0, {'product_tmpl_id': crm.id, 'price': 10000})]
         template = self.env['bl.quote.template'].create({
             'name': 'CRM Starter', 'plan_id': monthly.id, 'validity_days': 30,
             'line_ids': [(0, 0, {'product_id': crm_odoo.id, 'quantity': 1}),

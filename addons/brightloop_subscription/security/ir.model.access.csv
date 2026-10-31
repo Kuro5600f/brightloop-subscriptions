@@ -11,3 +11,5 @@ access_bl_discount_staff,bl.discount.rule staff,model_bl_discount_rule,group_bl_
 access_bl_discount_admin,bl.discount.rule admin,model_bl_discount_rule,group_bl_admin,1,1,1,1
 access_bl_sub_portal,bl.subscription portal,model_bl_subscription,base.group_portal,1,0,0,0
 access_bl_sub_line_portal,bl.subscription.line portal,model_bl_subscription_line,base.group_portal,1,0,0,0
+access_bl_plan_price_staff,bl.plan.price staff,model_bl_plan_price,group_bl_staff,1,0,0,0
+access_bl_plan_price_admin,bl.plan.price admin,model_bl_plan_price,group_bl_admin,1,1,1,1

@@ -28,6 +28,7 @@ class BlPlan(models.Model):
     allow_early_close = fields.Boolean('Allow Early Closure', default=True)
     allow_renew = fields.Boolean('Allow Renewal', default=True)
     active = fields.Boolean(default=True)
+    price_ids = fields.One2many('bl.plan.price', 'plan_id', 'Prices', copy=True)
 
     @api.constrains('date_start', 'date_end', 'min_qty')
     def _check_values(self):
@@ -44,3 +45,21 @@ class BlPlan(models.Model):
     def is_available(self, date):
         self.ensure_one()
         return (not self.date_start or self.date_start <= date) and (not self.date_end or date <= self.date_end)
+
+    def price_for(self, product):
+        """Plan price for this product per billing period, plus the variant's extra; None if the plan sets none."""
+        self.ensure_one()
+        row = self.price_ids.filtered(lambda p: p.product_tmpl_id == product.product_tmpl_id)[:1]
+        return row.price + product.price_extra if row else None
+
+
+class BlPlanPrice(models.Model):
+    _name = 'bl.plan.price'
+    _description = 'Plan Price'
+
+    plan_id = fields.Many2one('bl.plan', required=True, ondelete='cascade', index=True)
+    product_tmpl_id = fields.Many2one('product.template', 'Product', required=True)
+    price = fields.Float('Price per Period', required=True, digits='Product Price')
+
+    _sql_constraints = [('plan_product_uniq', 'unique(plan_id, product_tmpl_id)',
+                         'A product can only have one price per plan.')]

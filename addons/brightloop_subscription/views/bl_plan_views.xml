@@ -35,6 +35,15 @@
                             <field name="allow_renew"/>
                         </group>
                     </group>
+                    <separator string="Prices per Billing Period"/>
+                    <p class="text-muted">Optional. Products without a price here use their normal sales price.
+                        Variant extras (e.g. Odoo brand +560) are added on top.</p>
+                    <field name="price_ids">
+                        <list editable="bottom">
+                            <field name="product_tmpl_id"/>
+                            <field name="price"/>
+                        </list>
+                    </field>
                 </sheet>
             </form>
         </field>

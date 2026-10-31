@@ -65,6 +65,25 @@
                     <t t-call="brightloop_subscription.bl_state_badge"><t t-set="state" t-value="sub.state"/></t>
                 </div>
                 <div class="card-body">
+                    <div t-if="error" class="alert alert-danger" role="alert" t-out="error"/>
+                    <div t-if="message" class="alert alert-success" role="status" t-out="message"/>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <form t-if="sub.state == 'active' and sub.plan_id.allow_pause" method="post"
+                              t-attf-action="/my/subscriptions/#{sub.id}/pause">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-secondary">Pause subscription</button>
+                        </form>
+                        <form t-if="sub.state == 'paused'" method="post" t-attf-action="/my/subscriptions/#{sub.id}/resume">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-primary">Resume subscription</button>
+                        </form>
+                        <form t-if="sub.state in ('active', 'paused') and (sub.plan_id.allow_early_close or not sub.date_end)"
+                              method="post" t-attf-action="/my/subscriptions/#{sub.id}/close"
+                              onsubmit="return confirm('Close this subscription? No further invoices will be created.');">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-outline-danger">Close subscription</button>
+                        </form>
+                    </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div><strong>Plan:</strong> <span t-out="sub.plan_id.name"/></div>

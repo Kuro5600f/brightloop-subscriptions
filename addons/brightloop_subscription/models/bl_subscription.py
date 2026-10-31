@@ -176,11 +176,12 @@ class BlSubscriptionLine(models.Model):
 
     _sql_constraints = [('qty_positive', 'CHECK(quantity > 0)', 'Quantity must be positive.')]
 
-    @api.depends('product_id')
+    @api.depends('product_id', 'subscription_id.plan_id')
     def _compute_price_unit(self):
         for line in self:
+            plan_price = line.subscription_id.plan_id.price_for(line.product_id) if line.subscription_id.plan_id else None
             # lst_price already includes variant price_extra
-            line.price_unit = line.product_id.lst_price
+            line.price_unit = line.product_id.lst_price if plan_price is None else plan_price
 
     @api.depends('product_id')
     def _compute_tax_ids(self):

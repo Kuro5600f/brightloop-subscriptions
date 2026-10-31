@@ -13,6 +13,7 @@
         'views/bl_plan_views.xml',
         'data/bl_sequence.xml',
         'data/bl_precision.xml',
+        'data/bl_config.xml',
         'views/bl_quote_template_views.xml',
         'data/bl_cron.xml',
         'views/bl_subscription_views.xml',

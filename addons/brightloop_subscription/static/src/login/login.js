@@ -221,17 +221,29 @@
         if (submit) { submit.parentNode.insertBefore(formMsg, submit); } else { form.appendChild(formMsg); }
 
         var slowTimer = null;
+        var safetyTimer = null;
+        var inFlight = false;
         var label = submit && submit.querySelector(".bl-submit-label");
         var idleLabel = label ? label.textContent : "";
 
         function resetSubmit() {
+            inFlight = false;
             clearTimeout(slowTimer);
+            clearTimeout(safetyTimer);
             if (!submit) { return; }
             submit.disabled = false;
-            submit.classList.remove("bl-loading");
+            submit.removeAttribute("disabled");
+            submit.classList.remove("bl-loading", "o_btn_loading", "disabled");
             submit.removeAttribute("aria-busy");
+            // Odoo's own login script may have injected its loading spinner: remove it too
+            submit.querySelectorAll(".fa-spin, .fa-circle-o-notch, .spinner-border").forEach(function (el) { el.remove(); });
             if (label) { label.textContent = idleLabel; }
         }
+
+        // typing again always gives a usable button (unless a request is really in flight)
+        [login, password].forEach(function (i) {
+            if (i) { i.addEventListener("input", function () { if (!inFlight) { resetSubmit(); } }); }
+        });
 
         form.addEventListener("submit", function (ev) {
             var ok = [checkEmail(), checkPassword(), checkConfirm()].every(Boolean);
@@ -246,7 +258,9 @@
                 formMsg.textContent = "You're offline. Check your connection and try again.";
                 return;
             }
-            if (submit && submit.disabled) { ev.preventDefault(); return; } // no double submits
+            if (inFlight) { ev.preventDefault(); return; } // no double submits
+            inFlight = true;
+            safetyTimer = setTimeout(resetSubmit, 35000); // never leave the button stuck
             formMsg.textContent = "";
             if (isLogin || confirm) { sessionStorage.setItem("bl-splash", "1"); } // a flag only, never credentials
             if (submit) {
@@ -262,6 +276,7 @@
             // sign-up/reset and the debug "superuser" button keep the normal post
             if (isLogin && window.fetch && window.AbortController && !(ev.submitter && ev.submitter.name)) {
                 ev.preventDefault();
+                ev.stopImmediatePropagation(); // Odoo's login script would lock the button until a page reload
                 sendLogin();
             }
         });
@@ -287,6 +302,10 @@
                         // Odoo re-rendered the login page: take its error (generic, never says if the account exists)
                         var doc = new DOMParser().parseFromString(html, "text/html");
                         var err = doc.querySelector("form.oe_login_form .alert-danger");
+                        // fresh CSRF token from the re-rendered page, so the next attempt is accepted
+                        var token = doc.querySelector("input[name='csrf_token']");
+                        var mine = form.querySelector("input[name='csrf_token']");
+                        if (token && mine) { mine.value = token.value; }
                         failLogin(err ? err.textContent.trim() : "Sign-in didn't complete. Please try again.");
                     });
                 })

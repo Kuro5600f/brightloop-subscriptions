@@ -46,8 +46,11 @@ class BlSubscriptionBilling(models.Model):
     @api.model
     def _run_billing(self, today=None, batch=500):
         today = today or fields.Date.context_today(self)
-        subs = self.search([('state', '=', 'active'), ('next_invoice_date', '<=', today)],
-                           order='next_invoice_date, id', limit=batch)
+        subs = self.search([
+            ('state', '=', 'active'),
+            '|', ('next_invoice_date', '<=', today),
+            '&', ('date_end', '<', today), ('plan_id.auto_close', '=', True),  # close even between periods
+        ], order='next_invoice_date, id', limit=batch)
         created = errors = 0
         for sub in subs:
             try:
@@ -64,10 +67,13 @@ class BlSubscriptionBilling(models.Model):
         """Create every missed period up to today (catch-up), then auto-close if past the end date."""
         self.ensure_one()
         count = 0
+        # periods already billed (e.g. after rewinding to a cancelled period); the DB index stays the backstop
+        billed = set(self.invoice_ids.filtered(lambda m: m.state != 'cancel').mapped('bl_period_start'))
         while self.next_invoice_date <= today and (not self.date_end or self.next_invoice_date <= self.date_end):
-            self._create_invoice(self.next_invoice_date)
+            if self.next_invoice_date not in billed:
+                self._create_invoice(self.next_invoice_date)
+                count += 1
             self.next_invoice_date = self.plan_id.next_date(self.next_invoice_date)
-            count += 1
         self.env.flush_all()  # surface unique-index violations inside the savepoint
         if self.date_end and self.date_end < today and self.next_invoice_date > self.date_end \
                 and self.plan_id.auto_close:

@@ -119,7 +119,18 @@ class BlSubscription(models.Model):
 
     def action_resume(self):
         self._require_state('paused')
-        self.state = 'active'
+        today = fields.Date.context_today(self)
+        for sub in self:
+            # paused periods are not billed: restart at the first period on or after today
+            next_date = sub.next_invoice_date or sub.date_start
+            while next_date < today:
+                next_date = sub.plan_id.next_date(next_date)
+            sub.write({'state': 'active', 'next_invoice_date': next_date})
+
+    def unlink(self):
+        if self.filtered(lambda s: s.state not in ('draft', 'quotation')):
+            raise UserError("Only draft or quotation subscriptions can be deleted. Close it instead.")
+        return super().unlink()
 
     def action_close(self):
         self._require_state('active', 'paused')

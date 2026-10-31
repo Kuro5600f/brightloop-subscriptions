@@ -4,3 +4,5 @@ __pycache__/
 /*.png
 /UIUX/
 /change/
+/demo/*
+!/demo/brightloop-demo.webm

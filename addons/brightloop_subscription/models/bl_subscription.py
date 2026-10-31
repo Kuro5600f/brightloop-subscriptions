@@ -124,7 +124,7 @@ class BlSubscription(models.Model):
             # paused periods are not billed: restart at the first period on or after today
             next_date = sub.next_invoice_date or sub.date_start
             while next_date < today:
-                next_date = sub.plan_id.next_date(next_date)
+                next_date = sub.plan_id.next_date(next_date, anchor=sub.date_start)
             sub.write({'state': 'active', 'next_invoice_date': next_date})
 
     def unlink(self):

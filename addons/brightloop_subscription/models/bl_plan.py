@@ -38,9 +38,17 @@ class BlPlan(models.Model):
             if plan.min_qty < 1:
                 raise ValidationError("Minimum quantity must be at least 1.")
 
-    def next_date(self, date):
+    def next_date(self, date, anchor=None):
+        """First period start after `date`. With an anchor (the subscription start), periods are anchor + n
+        periods, so month ends don't drift (Jan 31 -> Feb 28 -> Mar 31, not Mar 28)."""
         self.ensure_one()
-        return date + PERIOD_DELTA[self.billing_period]
+        delta = PERIOD_DELTA[self.billing_period]
+        if not anchor:
+            return date + delta
+        n = 1
+        while anchor + delta * n <= date:
+            n += 1
+        return anchor + delta * n
 
     def is_available(self, date):
         self.ensure_one()

@@ -7,6 +7,8 @@
 | Build on Odoo `account` for invoices, taxes, payments | Mature, correct tax and payment matching; send/print/portal for free; time spent on what Odoo lacks | Tied to Odoo's invoice states (Draft/Posted) — shown to users as Draft → Confirmed → Paid |
 | Billing creates **draft** invoices | A human confirms before money is asked for; mistakes are cheap to fix | One extra click; can be switched to auto-post per plan later |
 | Duplicate guard as a **DB partial unique index** | Holds even with two concurrent billing runs or a bug in Python | Needs care in migrations; cancelled invoices are excluded on purpose |
+| Plan price changes apply to **new** quotes; running subscriptions keep the agreed price | A customer's contract price doesn't change under them without a new quote; predictable invoices | Price increases need a renewal/new quote to take effect |
+| Billing periods anchored to the start date | Jan 31 start bills Feb 28 then Mar 31, never drifting to the 28th | A small loop per advance (cheap) |
 | Catch-up loop instead of "bill today only" | Missed cron runs never silently skip revenue | A long outage creates many invoices at once (visible, reviewable drafts) |
 | Per-subscription savepoint + `billing_error` | One bad record cannot stop the batch, and failures are visible | Errors need someone to look at the filter |
 | One best discount, no stacking | Predictable, easy to explain to customers and auditors | Can't combine promos yet |

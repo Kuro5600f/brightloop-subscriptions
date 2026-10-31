@@ -86,7 +86,7 @@ class BlSubscriptionBilling(models.Model):
             if self.next_invoice_date not in billed:
                 self._create_invoice(self.next_invoice_date)
                 count += 1
-            self.next_invoice_date = self.plan_id.next_date(self.next_invoice_date)
+            self.next_invoice_date = self.plan_id.next_date(self.next_invoice_date, anchor=self.date_start)
         self.env.flush_all()  # surface unique-index violations inside the savepoint
         if self.date_end and self.date_end < today and self.next_invoice_date > self.date_end \
                 and self.plan_id.auto_close:

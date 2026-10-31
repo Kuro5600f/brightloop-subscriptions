@@ -1,5 +1,21 @@
 # Likely Judge Questions
 
+**The admin changes a plan, a customer qualifies for a discount, and the subscription renews today. What happens?**
+This exact scenario is one test: `tests/test_end_to_end.py`. Admin raises the plan price and creates a volume
+discount; billing runs twice on renewal day. Result: exactly one invoice; the agreed contract price is kept (the new
+plan price applies to new quotes); the discount is applied and counted; tax is computed on the discounted base
+(5 × 100 − 10% = 450, + 15% = 517.50); staff records the payment against that invoice (paid, residual 0); the
+dashboard's revenue and outstanding update immediately.
+
+**Why doesn't a plan price change affect running subscriptions?**
+The subscription is the contract the customer accepted. Changing it silently would surprise them and break the quote
+they signed. New prices apply to new quotations and renewals; proration and mid-contract repricing are listed as
+future work.
+
+**What about month ends?**
+Periods are anchored to the start date: a subscription starting Jan 31 is billed Feb 28 and then Mar 31, not stuck
+on the 28th (`test_month_end_does_not_drift`).
+
 **How do you stop double billing?**
 Two layers. The run only picks subscriptions with `next_invoice_date <= today` and moves the date forward after each
 invoice. Underneath, Postgres has a unique index on `(subscription, period_start)` for non-cancelled invoices, so even

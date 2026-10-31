@@ -45,7 +45,7 @@ every state with paid, partially paid and overdue invoices.
 docker compose run --rm odoo -d bl_test -i brightloop_subscription --test-tags /brightloop_subscription --stop-after-init
 ```
 
-63 tests cover: plan date maths, lifecycle guards, billing (one invoice per period, rerun creates none, catch-up,
+65 tests cover: an end-to-end billing-day scenario, plan date maths (incl. month ends), lifecycle guards, billing (one invoice per period, rerun creates none, catch-up,
 DB-level duplicate guard, cancel then rebill, end date and auto-close, visible errors), discounts (best rule wins,
 minimums, expiry, max uses within one run), portal isolation, password policy, dashboard figures, staff cannot create users.
 

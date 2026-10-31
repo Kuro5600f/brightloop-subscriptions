@@ -1,3 +1,4 @@
+from datetime import date
 from unittest.mock import patch
 
 import psycopg2
@@ -87,6 +88,15 @@ class TestBilling(BlCase):
         self.assertFalse(bad.invoice_ids)
         self.assertEqual(len(good.invoice_ids), 1)
         self.assertFalse(good.billing_error)
+
+    def test_month_end_does_not_drift(self):
+        """Started Jan 31: bill Feb 28 then Mar 31 (anchored to the start date), not Mar 28."""
+        start = date(2026, 1, 31)
+        sub = self.activate(self.make_sub(date_start=start))
+        self.Sub._run_billing(today=date(2026, 3, 31))
+        self.assertEqual(sorted(sub.invoice_ids.mapped('bl_period_start')),
+                         [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)])
+        self.assertEqual(sub.next_invoice_date, date(2026, 4, 30))
 
     def test_paused_not_billed(self):
         self.monthly.allow_pause = True

@@ -1,1 +1,1 @@
-from . import test_install, test_plan, test_security, test_subscription, test_billing, test_discount, test_seed, test_portal, test_password, test_dashboard, test_review_fixes, test_minor_fixes, test_gaps, test_end_to_end, test_login_page, test_auth_flow
+from . import test_install, test_plan, test_security, test_subscription, test_billing, test_discount, test_seed, test_portal, test_password, test_dashboard, test_review_fixes, test_minor_fixes, test_gaps, test_end_to_end, test_login_page, test_auth_flow, test_dashboard_v2

@@ -53,8 +53,18 @@
                 <p class="bl-auth-sub">Sign in to manage your subscriptions and invoices.</p>
             </header>
         </xpath>
+        <!-- no "Choose a user" picker: always the plain form -->
+        <xpath expr="//owl-component[@name='web.user_switch']" position="replace"/>
         <xpath expr="//form[@role='form']" position="attributes">
+            <attribute name="t-attf-class">oe_login_form</attribute>
             <attribute name="novalidate">novalidate</attribute>
+        </xpath>
+        <xpath expr="//a[contains(@t-attf-href, '/web/reset_password')]" position="replace">
+            <a t-if="reset_password_enabled" class="bl-forgot" t-attf-href="/web/reset_password?{{ keep_query() }}">Forgot password?</a>
+        </xpath>
+        <xpath expr="//a[contains(@t-attf-href, '/web/signup')]/.." position="replace">
+            <p t-if="signup_enabled" class="bl-signup-line">Don't have an account?
+                <a t-attf-href="/web/signup?{{ keep_query() }}">Sign up</a></p>
         </xpath>
         <xpath expr="//input[@name='login']" position="attributes">
             <attribute name="placeholder">you@company.com</attribute>
@@ -77,20 +87,23 @@
         </xpath>
         <xpath expr="//div[hasclass('oe_login_buttons')]/button[@type='submit']" position="replace">
             <button type="submit" class="btn btn-primary bl-submit">
-                <span class="bl-submit-label">Log in</span>
+                <span class="bl-submit-label">Sign in</span>
                 <span class="bl-spinner" aria-hidden="true"/>
             </button>
         </xpath>
-        <xpath expr="//form[@role='form']" position="after">
-            <details class="bl-demo">
-                <summary>Demo accounts</summary>
-                <ul>
-                    <li><button type="button" class="bl-demo-fill" data-login="admin@brightloop.test">Admin</button> admin@brightloop.test</li>
-                    <li><button type="button" class="bl-demo-fill" data-login="staff@brightloop.test">Staff</button> staff@brightloop.test</li>
-                    <li><button type="button" class="bl-demo-fill" data-login="customer@acme.test">Customer</button> customer@acme.test</li>
-                </ul>
-                <p>Password for all: <code>Brightloop#2026</code></p>
-            </details>
-        </xpath>
     </template>
+
+    <!-- OAuth provider form: secret + code-flow settings (secret visible to system admins only) -->
+    <record id="bl_oauth_provider_form" model="ir.ui.view">
+        <field name="name">auth.oauth.provider.form.brightloop</field>
+        <field name="model">auth.oauth.provider</field>
+        <field name="inherit_id" ref="auth_oauth.view_oauth_provider_form"/>
+        <field name="arch" type="xml">
+            <field name="client_id" position="after">
+                <field name="bl_client_secret" password="True" invisible="not bl_code_flow"/>
+                <field name="bl_code_flow"/>
+                <field name="bl_token_endpoint" invisible="not bl_code_flow"/>
+            </field>
+        </field>
+    </record>
 </odoo>

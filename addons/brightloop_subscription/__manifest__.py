@@ -14,6 +14,7 @@
         'views/bl_plan_views.xml',
         'data/bl_sequence.xml',
         'data/bl_config.xml',
+        'data/bl_oauth.xml',
         'views/bl_quote_template_views.xml',
         'data/bl_cron.xml',
         'views/bl_subscription_views.xml',

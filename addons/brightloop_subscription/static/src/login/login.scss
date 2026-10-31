@@ -379,32 +379,16 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     outline-offset: 2px;
 }
 
-/* demo accounts */
-.bl-demo {
-    margin-top: 20px;
-    padding: 12px 16px;
-    border: 1px dashed var(--bl-line);
-    border-radius: 12px;
-    font-size: 0.875rem;
-    color: var(--bl-muted);
-
-    summary { cursor: pointer; font-weight: 600; color: var(--bl-text); min-height: 24px; }
-    ul { list-style: none; padding: 0; margin: 10px 0 6px; }
-    li { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
-    p { margin: 0; }
-    code { color: var(--bl-text); }
+.bl-forgot {
+    font-size: 0.8125rem;
+    font-weight: 500;
 }
 
-.bl-demo-fill {
-    min-width: 84px;
-    min-height: 32px;
-    border: 1px solid var(--bl-line);
-    border-radius: 8px;
-    background: var(--bl-field);
-    color: var(--bl-text);
-    font-weight: 600;
-    cursor: pointer;
-    &:hover { border-color: var(--bl-accent-2); }
+.bl-signup-line {
+    margin: 24px 0 0;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--bl-muted);
 }
 
 .bl-auth-foot {

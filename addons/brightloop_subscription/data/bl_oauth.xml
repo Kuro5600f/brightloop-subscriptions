@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- LinkedIn "Sign In with LinkedIn using OpenID Connect". Needs a Client ID + Secret from
+         LinkedIn Developers; redirect URL: <your host>/auth_oauth/bl/callback -->
+    <record id="provider_linkedin" model="auth.oauth.provider">
+        <field name="name">LinkedIn</field>
+        <field name="auth_endpoint">https://www.linkedin.com/oauth/v2/authorization</field>
+        <field name="bl_token_endpoint">https://www.linkedin.com/oauth/v2/accessToken</field>
+        <field name="validation_endpoint">https://api.linkedin.com/v2/userinfo</field>
+        <field name="scope">openid profile email</field>
+        <field name="bl_code_flow" eval="True"/>
+        <field name="css_class">fa fa-fw fa-linkedin</field>
+        <field name="body">Continue with LinkedIn</field>
+        <field name="enabled" eval="False"/>
+        <field name="sequence">30</field>
+    </record>
+</odoo>

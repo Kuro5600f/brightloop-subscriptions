@@ -335,15 +335,9 @@
         var serverError = form.querySelector(".alert-danger");
         if (serverError) { showAuthError(serverError.textContent.trim()); }
 
-        // demo accounts: fill both fields
-        document.querySelectorAll(".bl-demo-fill").forEach(function (btn) {
-            btn.addEventListener("click", function () {
-                login.value = btn.getAttribute("data-login");
-                password.value = "Brightloop#2026";
-                checkEmail();
-                checkPassword();
-                if (submit) { submit.focus(); }
-            });
+        // social sign-in returns through the provider: show the welcome splash when it lands
+        form.querySelectorAll(".o_auth_oauth_providers a").forEach(function (a) {
+            a.addEventListener("click", function () { sessionStorage.setItem("bl-splash", "1"); });
         });
     });
 })();

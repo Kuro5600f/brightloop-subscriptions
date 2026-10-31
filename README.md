@@ -127,8 +127,26 @@ buttons. To enable:
 3. In Odoo as admin: Settings → Users & Companies → **OAuth Providers** → Google / Facebook → paste the
    **Client ID**, tick **Allowed**, save.
 
-New social users get a portal (customer) account. LinkedIn is not offered: it requires a server-side
-authorization-code flow that Odoo's OAuth module does not implement (future work).
+**LinkedIn** uses a server-side authorization-code flow added by this module (Odoo's OAuth module only does the
+browser flow). LinkedIn Developers → create app → product "Sign In with LinkedIn using OpenID Connect" → redirect URL
+`http://localhost:8069/auth_oauth/bl/callback`. In Odoo: OAuth Providers → LinkedIn → paste **Client ID** and
+**Client Secret** (stored server-side, visible to system admins only), tick **Allowed**. The callback checks a
+one-time `state` bound to the browser session, exchanges the code on the server, reads `/v2/userinfo`, then signs in
+through Odoo's own OAuth user logic.
+
+New social users get a portal (customer) account.
+
+### Where users land after sign-in (role-based, server-side)
+
+| Role (from the user's groups in the database) | Lands on |
+|---|---|
+| Brightloop Admin / Staff | Finance dashboard |
+| Customer (portal) | `/my` — their subscriptions and invoices |
+| Other internal users | Odoo home |
+
+Same rule for password, Google, Facebook and LinkedIn sign-in; an explicit `?redirect=` (e.g. after a session
+expired) is honoured if it is a local path. Customers who open a backend URL are sent back to `/my` by Odoo, and
+record rules keep them to their own data.
 
 ### Simulated services (honest about it)
 

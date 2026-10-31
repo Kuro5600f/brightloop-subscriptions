@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bl_discount_rule_list" model="ir.ui.view">
+        <field name="name">bl.discount.rule.list</field>
+        <field name="model">bl.discount.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="discount_type"/>
+                <field name="value"/>
+                <field name="apply_on"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="used_count"/>
+                <field name="max_uses"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bl_discount_rule_form" model="ir.ui.view">
+        <field name="name">bl.discount.rule.form</field>
+        <field name="model">bl.discount.rule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" placeholder="e.g. Launch 10%"/></h1></div>
+                    <group>
+                        <group string="Discount">
+                            <field name="discount_type"/>
+                            <field name="value"/>
+                            <field name="apply_on"/>
+                            <field name="product_ids" widget="many2many_tags"
+                                   invisible="apply_on != 'products'" required="apply_on == 'products'"/>
+                        </group>
+                        <group string="Conditions">
+                            <field name="min_amount"/>
+                            <field name="min_qty"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="max_uses"/>
+                            <field name="used_count"/>
+                        </group>
+                    </group>
+                    <p class="text-muted">The best eligible rule is applied automatically to each new subscription
+                        invoice. Rules stop applying once expired or when Times Used reaches Maximum Uses.</p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_bl_discount_rule" model="ir.actions.act_window">
+        <field name="name">Discount Rules</field>
+        <field name="res_model">bl.discount.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

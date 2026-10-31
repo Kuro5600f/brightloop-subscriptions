@@ -15,3 +15,9 @@ class AccountMove(models.Model):
             ON account_move (bl_subscription_id, bl_period_start)
             WHERE state != 'cancel' AND bl_subscription_id IS NOT NULL
         """)
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    bl_discount_rule_id = fields.Many2one('bl.discount.rule', 'Discount Rule', readonly=True, copy=False, index=True)

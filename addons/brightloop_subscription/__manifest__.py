@@ -14,6 +14,7 @@
         'data/bl_cron.xml',
         'views/bl_subscription_views.xml',
         'views/account_move_views.xml',
+        'views/bl_discount_rule_views.xml',
         'views/bl_menus.xml',
     ],
     'application': True,

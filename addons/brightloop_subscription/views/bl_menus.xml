@@ -20,6 +20,8 @@
     <menuitem id="menu_bl_plan" name="Plans" parent="menu_bl_config" action="action_bl_plan" sequence="10"/>
     <menuitem id="menu_bl_quote_template" name="Quotation Templates" parent="menu_bl_config"
               action="action_bl_quote_template" sequence="20"/>
+    <menuitem id="menu_bl_discount_rule" name="Discount Rules" parent="menu_bl_config"
+              action="action_bl_discount_rule" sequence="25"/>
     <menuitem id="menu_bl_products" name="Products" parent="menu_bl_config"
               action="account.product_product_action_sellable" sequence="30"/>
     <menuitem id="menu_bl_taxes" name="Taxes" parent="menu_bl_config" action="account.action_tax_form" sequence="40"/>

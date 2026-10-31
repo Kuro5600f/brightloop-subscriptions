@@ -35,7 +35,12 @@ class BlSubscriptionBilling(models.Model):
         return move
 
     def _apply_discount(self, move):
-        """Hook filled by discount rules."""
+        """Apply the single most valuable eligible rule (no stacking)."""
+        rules = self.env['bl.discount.rule']._eligible(move)
+        if rules:
+            best = max(rules, key=lambda r: r._value_for(move))
+            best._apply_to(move)
+            self.env.flush_all()
         return move
 
     @api.model

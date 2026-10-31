@@ -40,7 +40,7 @@ async function login(page, email) {
 async function go(page, action) {
   await page.goto(`${BASE}/odoo/action-brightloop_subscription.${action}`);
   await page.waitForLoadState('load');
-  await wait(800);
+  await wait(2000);
 }
 
 (async () => {
@@ -65,7 +65,7 @@ async function go(page, action) {
   await say(page, 'Monthly paid / pending / overdue chart and status breakdown');
   await page.mouse.wheel(0, 600);
   await wait(800);
-  const row = page.locator('.o_bl_row').first();
+  const row = page.locator('.o_bl_row', { hasText: 'INV/' }).first();
   if (await row.count()) {
     await row.click();
     await say(page, 'Click any invoice for the details drawer');

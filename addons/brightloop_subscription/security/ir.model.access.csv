@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bl_plan_staff,bl.plan staff,model_bl_plan,group_bl_staff,1,0,0,0
+access_bl_plan_admin,bl.plan admin,model_bl_plan,group_bl_admin,1,1,1,1
+access_bl_tmpl_staff,bl.quote.template staff,model_bl_quote_template,group_bl_staff,1,0,0,0
+access_bl_tmpl_admin,bl.quote.template admin,model_bl_quote_template,group_bl_admin,1,1,1,1
+access_bl_tmpl_line_staff,bl.quote.template.line staff,model_bl_quote_template_line,group_bl_staff,1,0,0,0
+access_bl_tmpl_line_admin,bl.quote.template.line admin,model_bl_quote_template_line,group_bl_admin,1,1,1,1

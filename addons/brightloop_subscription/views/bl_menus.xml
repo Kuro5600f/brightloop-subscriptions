@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_bl_root" name="Brightloop" sequence="5" web_icon="account,static/description/icon.png"
+              groups="group_bl_staff"/>
+
+    <menuitem id="menu_bl_subscriptions" name="Subscriptions" parent="menu_bl_root" sequence="20"/>
+    <menuitem id="menu_bl_billing" name="Billing" parent="menu_bl_root" sequence="30"/>
+
+    <menuitem id="menu_bl_config" name="Configuration" parent="menu_bl_root" sequence="90" groups="group_bl_admin"/>
+    <menuitem id="menu_bl_plan" name="Plans" parent="menu_bl_config" action="action_bl_plan" sequence="10"/>
+    <menuitem id="menu_bl_quote_template" name="Quotation Templates" parent="menu_bl_config"
+              action="action_bl_quote_template" sequence="20"/>
+    <menuitem id="menu_bl_products" name="Products" parent="menu_bl_config"
+              action="account.product_product_action_sellable" sequence="30"/>
+    <menuitem id="menu_bl_taxes" name="Taxes" parent="menu_bl_config" action="account.action_tax_form" sequence="40"/>
+</odoo>

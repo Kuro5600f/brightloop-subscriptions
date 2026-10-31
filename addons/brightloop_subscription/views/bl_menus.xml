@@ -4,6 +4,10 @@
               groups="group_bl_staff"/>
 
     <menuitem id="menu_bl_subscriptions" name="Subscriptions" parent="menu_bl_root" sequence="20"/>
+    <menuitem id="menu_bl_subscription_list" name="Subscriptions" parent="menu_bl_subscriptions"
+              action="action_bl_subscription" sequence="10"/>
+    <menuitem id="menu_bl_customers" name="Customers" parent="menu_bl_subscriptions"
+              action="account.res_partner_action_customer" sequence="20"/>
     <menuitem id="menu_bl_billing" name="Billing" parent="menu_bl_root" sequence="30"/>
 
     <menuitem id="menu_bl_config" name="Configuration" parent="menu_bl_root" sequence="90" groups="group_bl_admin"/>

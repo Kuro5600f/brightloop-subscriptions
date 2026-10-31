@@ -1,1 +1,1 @@
-from . import test_install, test_plan, test_security
+from . import test_install, test_plan, test_security, test_subscription

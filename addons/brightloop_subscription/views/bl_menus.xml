@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem id="menu_bl_root" name="Brightloop" sequence="5" web_icon="account,static/description/icon.png"
-              groups="group_bl_staff"/>
+              groups="group_bl_staff" action="action_bl_dashboard"/>
+    <menuitem id="menu_bl_dashboard" name="Dashboard" parent="menu_bl_root" action="action_bl_dashboard" sequence="1"/>
 
     <menuitem id="menu_bl_subscriptions" name="Subscriptions" parent="menu_bl_root" sequence="20"/>
     <menuitem id="menu_bl_subscription_list" name="Subscriptions" parent="menu_bl_subscriptions"

@@ -17,8 +17,14 @@
         'views/bl_subscription_views.xml',
         'views/account_move_views.xml',
         'views/bl_discount_rule_views.xml',
+        'views/bl_dashboard_action.xml',
         'views/bl_menus.xml',
         'data/bl_seed.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'brightloop_subscription/static/src/dashboard/*',
+        ],
+    },
     'application': True,
 }

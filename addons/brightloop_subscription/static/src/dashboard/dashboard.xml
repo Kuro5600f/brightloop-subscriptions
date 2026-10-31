@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="brightloop_subscription.Dashboard">
+        <div class="o_bl_dashboard o_action h-100 overflow-auto p-3 p-md-4">
+            <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="mb-0">Finance Dashboard</h2>
+                    <small class="text-muted">Payments received in the selected period. Outstanding and overdue are as of today.</small>
+                </div>
+                <div class="d-flex flex-wrap align-items-end gap-2">
+                    <label class="d-flex flex-column small">From
+                        <input type="date" class="form-control form-control-sm" t-model="state.dateFrom" t-on-change="() => this.load()"/>
+                    </label>
+                    <label class="d-flex flex-column small">To
+                        <input type="date" class="form-control form-control-sm" t-model="state.dateTo" t-on-change="() => this.load()"/>
+                    </label>
+                    <button class="btn btn-sm btn-secondary" t-on-click="() => this.clearDates()">All time</button>
+                    <button class="btn btn-sm btn-primary" t-on-click="() => this.load()">Refresh</button>
+                </div>
+            </div>
+
+            <div t-if="state.error" class="alert alert-danger" role="alert">
+                <strong>Dashboard failed to load.</strong> <t t-esc="state.error"/>
+                <button class="btn btn-sm btn-link" t-on-click="() => this.load()">Try again</button>
+            </div>
+
+            <div t-if="state.loading and !state.data" class="text-center text-muted py-5">
+                <i class="fa fa-spinner fa-spin fa-2x" aria-hidden="true"/>
+                <div class="mt-2">Loading figures…</div>
+            </div>
+
+            <t t-if="state.data">
+                <t t-set="d" t-value="state.data"/>
+                <div class="row g-3 mb-4" t-att-class="{'opacity-50': state.loading}">
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 o_bl_kpi" role="button" t-on-click="() => this.openAction('brightloop_subscription.action_bl_subscription')">
+                            <div class="card-body">
+                                <div class="text-muted small">Active subscriptions</div>
+                                <div class="fs-2 fw-bold" t-esc="d.active_count"/>
+                                <div class="small text-muted"><t t-esc="d.due_count"/> due for billing</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 o_bl_kpi border-success">
+                            <div class="card-body">
+                                <div class="text-muted small">Revenue received</div>
+                                <div class="fs-2 fw-bold text-success" t-esc="money(d.revenue)"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 o_bl_kpi border-warning" role="button" t-on-click="() => this.openAction('brightloop_subscription.action_bl_invoices')">
+                            <div class="card-body">
+                                <div class="text-muted small">Amount outstanding</div>
+                                <div class="fs-2 fw-bold" t-esc="money(d.outstanding)"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 o_bl_kpi border-danger" role="button" t-on-click="() => this.openAction('brightloop_subscription.action_bl_overdue')">
+                            <div class="card-body">
+                                <div class="text-muted small">Overdue invoices</div>
+                                <div class="fs-2 fw-bold text-danger" t-esc="d.overdue_count"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header fw-bold">Overdue invoices</div>
+                            <div t-if="!d.overdue.length" class="card-body text-muted"><i class="fa fa-check-circle text-success me-1" aria-hidden="true"/>Nothing overdue.</div>
+                            <table t-else="" class="table table-hover mb-0">
+                                <thead><tr><th>Invoice</th><th>Customer</th><th>Due</th><th class="text-end">Amount due</th></tr></thead>
+                                <tbody>
+                                    <tr t-foreach="d.overdue" t-as="o" t-key="o.id" role="button" t-on-click="() => this.open('account.move', o.id)">
+                                        <td t-esc="o.name"/>
+                                        <td t-esc="o.partner"/>
+                                        <td><t t-esc="o.due_date"/> <span class="badge text-bg-danger ms-1"><t t-esc="o.days_late"/>d late</span></td>
+                                        <td class="text-end" t-esc="money(o.residual)"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header fw-bold">Recent payments</div>
+                            <div t-if="!d.recent_payments.length" class="card-body text-muted">No payments in this period.</div>
+                            <table t-else="" class="table table-hover mb-0">
+                                <thead><tr><th>Payment</th><th>Customer</th><th>Date</th><th class="text-end">Amount</th></tr></thead>
+                                <tbody>
+                                    <tr t-foreach="d.recent_payments" t-as="p" t-key="p.id" role="button" t-on-click="() => this.open('account.payment', p.id)">
+                                        <td t-esc="p.name"/>
+                                        <td t-esc="p.partner"/>
+                                        <td t-esc="p.date"/>
+                                        <td class="text-end text-success" t-esc="money(p.amount)"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

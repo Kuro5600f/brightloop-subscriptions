@@ -1,0 +1,17 @@
+.o_bl_dashboard {
+    background-color: $o-view-background-color;
+
+    .o_bl_kpi {
+        border-width: 0 0 0 4px;
+        transition: box-shadow 150ms ease-out;
+
+        &[role="button"]:hover,
+        &[role="button"]:focus-visible {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+    }
+
+    tr[role="button"] {
+        cursor: pointer;
+    }
+}

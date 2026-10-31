@@ -13,6 +13,10 @@ class BlSubscriptionSeed(models.Model):
         """Realistic demo data: variant pricing, tax, template and subscriptions in every state with history."""
         ref = lambda x: self.env.ref('%s.%s' % (MODULE, x))  # noqa: E731
         today = fields.Date.context_today(self)
+        company = self.env.company
+        if not company.chart_template:
+            # invoices need journals, accounts and tax groups
+            self.env['account.chart.template'].try_loading('generic_coa', company, install_demo=False)
 
         crm = ref('product_bl_crm')
         odoo_value = crm.attribute_line_ids.product_template_value_ids.filtered(

@@ -4,7 +4,7 @@
     'summary': 'Plans, subscriptions, recurring invoices, discounts and a finance dashboard',
     'category': 'Sales/Subscriptions',
     'license': 'LGPL-3',
-    'depends': ['account', 'portal', 'auth_signup', 'web'],
+    'depends': ['account', 'portal', 'auth_signup', 'auth_oauth', 'web'],
     'data': [
         'security/bl_security.xml',
         'security/ir.model.access.csv',
@@ -26,11 +26,14 @@
     'assets': {
         'web.assets_backend': [
             'brightloop_subscription/static/src/dashboard/*',
+            'brightloop_subscription/static/src/splash/*',
         ],
         'web.assets_frontend': [
             'brightloop_subscription/static/src/login/login.scss',
             'brightloop_subscription/static/src/login/anim_topo.js',
+            'brightloop_subscription/static/src/login/email_check.js',
             'brightloop_subscription/static/src/login/login.js',
+            'brightloop_subscription/static/src/splash/*',
         ],
     },
     'application': True,

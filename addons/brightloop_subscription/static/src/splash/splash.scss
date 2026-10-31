@@ -1,0 +1,74 @@
+/* Post-login welcome splash; same palette as the login page, self-contained (backend has no login tokens). */
+.bl-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    transition: opacity 0.45s ease;
+    animation: bl-splash-in 0.45s ease both;
+
+    &.bl-splash-out { opacity: 0; pointer-events: none; }
+}
+
+.bl-splash-light { background: radial-gradient(circle at 30% 20%, #fbf5ec 0%, #f0e2d1 75%); color: #1f1b16; }
+.bl-splash-dark { background: radial-gradient(circle at 30% 20%, #1b2236 0%, #06080d 70%); color: #eef1f7; }
+
+.bl-splash-inner { text-align: center; padding: 24px; }
+
+.bl-splash-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #c2410c, #dd5a12);
+    color: #fff;
+    font-size: 1.75rem;
+    font-weight: 700;
+    box-shadow: 0 16px 40px -16px #c2410c;
+    animation: bl-splash-pop 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+.bl-splash-hello {
+    margin: 20px 0 6px;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 600;
+    animation: bl-splash-rise 0.5s 0.15s ease both;
+}
+
+.bl-splash-sub {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.75;
+    animation: bl-splash-rise 0.5s 0.25s ease both;
+}
+
+.bl-splash-bar {
+    display: block;
+    width: 180px;
+    height: 4px;
+    margin: 24px auto 0;
+    border-radius: 4px;
+    background: rgba(127, 127, 127, 0.25);
+    overflow: hidden;
+
+    span {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #c2410c, #dd5a12);
+        animation: bl-splash-load 1.1s ease-in-out infinite;
+    }
+}
+
+@keyframes bl-splash-in { from { opacity: 0; } }
+@keyframes bl-splash-pop { from { transform: scale(0.6); opacity: 0; } }
+@keyframes bl-splash-rise { from { transform: translateY(8px); opacity: 0; } }
+@keyframes bl-splash-load { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .bl-splash, .bl-splash * { animation: none !important; transition: none !important; }
+}

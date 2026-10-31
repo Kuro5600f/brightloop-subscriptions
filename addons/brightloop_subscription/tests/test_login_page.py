@@ -13,6 +13,17 @@ class TestLoginPage(HttpCase):
                        'name="login"', 'name="password"', '/web/reset_password', '/web/signup'):
             self.assertIn(marker, html, marker)
 
+    def test_social_login_buttons_follow_configuration(self):
+        google = self.env.ref('auth_oauth.provider_google')
+        res = self.url_open('/web/login')
+        self.assertNotIn('Continue with Google', res.text)  # no client id configured: no fake button
+        self.assertNotIn('Odoo.com', res.text)
+        google.write({'enabled': True, 'client_id': 'demo-client-id.apps.googleusercontent.com'})
+        res = self.url_open('/web/login')
+        self.assertIn('Continue with Google', res.text)
+        self.assertIn('accounts.google.com', res.text)
+        self.assertIn('demo-client-id.apps.googleusercontent.com', res.text)
+
     def test_real_login_still_works(self):
         new_test_user(self.env, login='login_page@brightloop.test', password=PASSWORD)
         res = self.url_open('/web/login')

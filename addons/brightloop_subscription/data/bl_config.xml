@@ -9,4 +9,19 @@
         <value>auth_signup.reset_password</value>
         <value>True</value>
     </function>
+
+    <!-- Social login: Google and Facebook via Odoo's OAuth module. Buttons appear only once an admin pastes a
+         client ID and enables the provider (Settings > Users > OAuth Providers). Odoo.com login is not offered. -->
+    <function model="auth.oauth.provider" name="write">
+        <value eval="[ref('auth_oauth.provider_openerp')]"/>
+        <value eval="{'enabled': False}"/>
+    </function>
+    <function model="auth.oauth.provider" name="write">
+        <value eval="[ref('auth_oauth.provider_google')]"/>
+        <value eval="{'body': 'Continue with Google', 'css_class': 'fa fa-fw fa-google'}"/>
+    </function>
+    <function model="auth.oauth.provider" name="write">
+        <value eval="[ref('auth_oauth.provider_facebook')]"/>
+        <value eval="{'body': 'Continue with Facebook', 'css_class': 'fa fa-fw fa-facebook'}"/>
+    </function>
 </odoo>

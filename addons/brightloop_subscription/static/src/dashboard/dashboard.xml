@@ -24,9 +24,26 @@
                 <button class="btn btn-sm btn-link" t-on-click="() => this.load()">Try again</button>
             </div>
 
-            <div t-if="state.loading and !state.data" class="text-center text-muted py-5">
-                <i class="fa fa-spinner fa-spin fa-2x" aria-hidden="true"/>
-                <div class="mt-2">Loading figures…</div>
+            <!-- skeleton placeholders matching the real layout while the first data loads -->
+            <div t-if="state.loading and !state.data" class="o_bl_skeleton" aria-busy="true" aria-label="Loading figures">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-lg-3" t-foreach="[1, 2, 3, 4]" t-as="i" t-key="i">
+                        <div class="card h-100"><div class="card-body">
+                            <span class="o_bl_sk o_bl_sk_line w-50"/>
+                            <span class="o_bl_sk o_bl_sk_big w-75 mt-2"/>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-6" t-foreach="[1, 2]" t-as="t" t-key="t">
+                        <div class="card h-100">
+                            <div class="card-header"><span class="o_bl_sk o_bl_sk_line w-25"/></div>
+                            <div class="card-body">
+                                <span t-foreach="[1, 2, 3, 4, 5]" t-as="r" t-key="r" class="o_bl_sk o_bl_sk_row"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <t t-if="state.data">

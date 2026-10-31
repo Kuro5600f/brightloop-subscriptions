@@ -14,4 +14,21 @@
     tr[role="button"] {
         cursor: pointer;
     }
+
+    .o_bl_sk {
+        display: block;
+        border-radius: 6px;
+        background: linear-gradient(90deg, rgba(127, 127, 127, 0.12) 25%, rgba(127, 127, 127, 0.24) 50%, rgba(127, 127, 127, 0.12) 75%);
+        background-size: 200% 100%;
+        animation: o_bl_shimmer 1.2s ease-in-out infinite;
+    }
+    .o_bl_sk_line { height: 12px; }
+    .o_bl_sk_big { height: 28px; }
+    .o_bl_sk_row { height: 18px; margin: 12px 0; }
+}
+
+@keyframes o_bl_shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .o_bl_dashboard .o_bl_sk { animation: none; }
 }

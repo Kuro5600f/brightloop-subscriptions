@@ -244,6 +244,84 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     &:empty { display: none; }
 }
 
+.bl-suggest {
+    margin: 6px 0 0;
+    font-size: 0.875rem;
+    color: var(--bl-muted);
+    &:empty { display: none; }
+}
+
+.bl-suggest-apply {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--bl-accent-2);
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.bl-pw-rules {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    font-size: 0.8125rem;
+    color: var(--bl-muted);
+
+    li::before { content: "○"; display: inline-block; width: 1.25em; }
+    li.bl-met { color: var(--bl-ok); }
+    li.bl-met::before { content: "✓"; }
+}
+
+.bl-form-msg {
+    margin: 0 0 8px;
+    font-size: 0.875rem;
+    color: var(--bl-muted);
+    &:empty { display: none; }
+}
+
+/* social login (Odoo OAuth providers): only rendered when a provider is configured */
+.bl-auth-panel .o_login_auth {
+    > em { display: none !important; } // Odoo's "- or -"; replaced by the divider below
+
+    &:has(.o_auth_oauth_providers)::before {
+        content: "or continue with";
+        display: block;
+        margin: 20px 0 12px;
+        font-size: 0.8125rem;
+        text-align: center;
+        color: var(--bl-muted);
+        background: linear-gradient(var(--bl-line), var(--bl-line)) left center / 30% 1px no-repeat,
+            linear-gradient(var(--bl-line), var(--bl-line)) right center / 30% 1px no-repeat;
+    }
+
+    .o_auth_oauth_providers {
+        display: grid;
+        gap: 10px;
+        margin: 0 !important;
+    }
+
+    .o_auth_oauth_providers .list-group-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 48px;
+        border: 1px solid var(--bl-line) !important;
+        border-radius: 12px !important;
+        background: var(--bl-field);
+        color: var(--bl-text);
+        font-weight: 600;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+
+        &:hover { border-color: var(--bl-accent-2) !important; background: var(--bl-field-focus); }
+        .fa-google { color: #ea4335; }
+        .fa-facebook { color: #1877f2; }
+    }
+}
 .bl-caps {
     margin: 6px 0 0;
     font-size: 0.875rem;

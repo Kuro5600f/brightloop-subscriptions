@@ -59,21 +59,21 @@
         <xpath expr="//input[@name='login']" position="attributes">
             <attribute name="placeholder">you@company.com</attribute>
             <attribute name="inputmode">email</attribute>
-            <attribute name="aria-describedby">bl_login_err</attribute>
+            <attribute name="aria-describedby">login_err</attribute>
         </xpath>
         <xpath expr="//input[@name='login']" position="after">
-            <p class="bl-field-error" id="bl_login_err" aria-live="polite"/>
+            <p class="bl-field-error" id="login_err" aria-live="polite"/>
         </xpath>
         <xpath expr="//input[@name='password']" position="attributes">
             <attribute name="placeholder">Your password</attribute>
-            <attribute name="aria-describedby">bl_password_err bl_caps</attribute>
+            <attribute name="aria-describedby">password_err bl_caps</attribute>
         </xpath>
         <xpath expr="//input[@name='password']" position="after">
             <button type="button" class="bl-pass-toggle" aria-label="Show password" aria-pressed="false" aria-controls="password">
                 <i class="fa fa-eye" aria-hidden="true"/>
             </button>
             <p class="bl-caps" id="bl_caps" hidden="hidden"><i class="fa fa-arrow-up" aria-hidden="true"/> Caps Lock is on</p>
-            <p class="bl-field-error" id="bl_password_err" aria-live="polite"/>
+            <p class="bl-field-error" id="password_err" aria-live="polite"/>
         </xpath>
         <xpath expr="//div[hasclass('oe_login_buttons')]/button[@type='submit']" position="replace">
             <button type="submit" class="btn btn-primary bl-submit">

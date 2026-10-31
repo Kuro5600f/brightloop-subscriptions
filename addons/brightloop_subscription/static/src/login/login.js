@@ -2,7 +2,6 @@
 (function () {
     "use strict";
 
-    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     var FADE_MS = 450;
 
     function ready(fn) {
@@ -77,37 +76,120 @@
             });
         }
 
-        /* ---------- form ---------- */
-        var form = document.querySelector("form.oe_login_form");
-        if (!form) { return; } // sign-up / reset pages: shell only
-        var login = form.querySelector("input[name='login']");
+        /* ---------- forms: login, sign-up and reset share the same helpers ---------- */
+        sessionStorage.removeItem("bl-splash"); // back on an auth page: no pending welcome splash
+        var form = document.querySelector("form.oe_login_form, form.oe_signup_form, form.oe_reset_password_form");
+        if (!form) { return; }
+        var isLogin = form.classList.contains("oe_login_form");
+        var login = form.querySelector("input[name='login']:not([readonly])");
         var password = form.querySelector("input[name='password']");
-        var submit = form.querySelector(".bl-submit");
+        var confirm = form.querySelector("input[name='confirm_password']");
+        var submit = form.querySelector("button[type='submit']");
+        var DEBOUNCE_MS = 300;
+
+        // message line under a field (created on demand, linked for screen readers)
+        function messageFor(input, kind) {
+            var id = input.id + "_" + kind;
+            var el = document.getElementById(id);
+            if (!el) {
+                el = document.createElement("p");
+                el.id = id;
+                el.className = kind === "err" ? "bl-field-error" : "bl-suggest";
+                el.setAttribute("aria-live", "polite");
+                input.parentNode.appendChild(el);
+                input.setAttribute("aria-describedby", ((input.getAttribute("aria-describedby") || "") + " " + id).trim());
+            }
+            return el;
+        }
 
         function setError(input, message) {
-            var box = document.getElementById(input === login ? "bl_login_err" : "bl_password_err");
             input.setAttribute("aria-invalid", message ? "true" : "false");
-            input.closest(".mb-3").classList.toggle("bl-has-error", !!message);
-            if (box) { box.textContent = message || ""; }
+            messageFor(input, "err").textContent = message || "";
             return !message;
         }
 
-        function checkLogin() {
-            var v = login.value.trim();
-            if (!v) { return setError(login, "Enter your email address."); }
-            if (!EMAIL_RE.test(v)) { return setError(login, "That doesn't look like an email address, e.g. you@company.com."); }
-            return setError(login, "");
+        function checkEmail() {
+            if (!login) { return true; }
+            var r = window.BlEmailCheck ? window.BlEmailCheck.check(login.value) : { error: null, suggestion: null };
+            var box = messageFor(login, "hint");
+            box.textContent = "";
+            if (r.suggestion) {
+                var btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "bl-suggest-apply";
+                btn.textContent = r.suggestion;
+                btn.addEventListener("click", function () {
+                    login.value = r.suggestion;
+                    checkEmail();
+                    login.focus();
+                });
+                box.append("Did you mean ", btn, "?");
+            }
+            return setError(login, r.error);
+        }
+
+        var RULES = [
+            [function (p) { return p.length > 8; }, "More than 8 characters"],
+            [function (p) { return /[A-Z]/.test(p); }, "An uppercase letter"],
+            [function (p) { return /[a-z]/.test(p); }, "A lowercase letter"],
+            [function (p) { return /[^A-Za-z0-9]/.test(p); }, "A special character (e.g. # ! @)"],
+        ];
+        var checklist = null;
+        if (confirm && password) {
+            // creating a password (sign-up / reset): live checklist matching the server rule
+            checklist = document.createElement("ul");
+            checklist.className = "bl-pw-rules";
+            checklist.id = "bl_pw_rules";
+            checklist.setAttribute("aria-label", "Password requirements");
+            RULES.forEach(function (r) {
+                var li = document.createElement("li");
+                li.textContent = r[1];
+                checklist.appendChild(li);
+            });
+            password.parentNode.appendChild(checklist);
+            password.setAttribute("aria-describedby", ((password.getAttribute("aria-describedby") || "") + " bl_pw_rules").trim());
+        }
+
+        function updateChecklist() {
+            var missing = 0;
+            RULES.forEach(function (r, i) {
+                var met = r[0](password.value);
+                checklist.children[i].classList.toggle("bl-met", met);
+                missing += met ? 0 : 1;
+            });
+            return missing;
         }
 
         function checkPassword() {
-            return setError(password, password.value ? "" : "Enter your password.");
+            var p = password.value;
+            if (!checklist) { return setError(password, p ? "" : "Enter your password."); }
+            var missing = updateChecklist();
+            return setError(password, !p ? "Choose a password." : missing ? "Your password doesn't meet all the requirements yet." : "");
         }
 
-        // validate on blur, then live once the user is correcting an error
-        login.addEventListener("blur", function () { if (login.value) { checkLogin(); } });
-        password.addEventListener("blur", function () { if (password.value) { checkPassword(); } });
-        login.addEventListener("input", function () { if (login.getAttribute("aria-invalid") === "true") { checkLogin(); } });
-        password.addEventListener("input", function () { if (password.getAttribute("aria-invalid") === "true") { checkPassword(); } });
+        function checkConfirm() {
+            if (!confirm) { return true; }
+            if (!confirm.value) { return setError(confirm, "Repeat your password."); }
+            return setError(confirm, confirm.value !== password.value ? "The passwords don't match." : "");
+        }
+
+        // touched-field validation: quiet until the user leaves a field once, then live with a short debounce
+        function wire(input, fn) {
+            if (!input) { return; }
+            var timer = null;
+            input.addEventListener("blur", function () {
+                if (input.value) { input.dataset.blTouched = "1"; fn(); }
+            });
+            input.addEventListener("input", function () {
+                clearTimeout(timer);
+                if (input.getAttribute("aria-invalid") === "true") { fn(); return; } // clear errors as soon as fixed
+                if (input.dataset.blTouched) { timer = setTimeout(fn, DEBOUNCE_MS); }
+            });
+        }
+        wire(login, checkEmail);
+        wire(password, function () { checkPassword(); if (confirm && confirm.dataset.blTouched) { checkConfirm(); } });
+        wire(confirm, checkConfirm);
+        if (checklist) { password.addEventListener("input", updateChecklist); } // ticks update on every keystroke
 
         // caps lock hint (error prevention)
         var caps = document.getElementById("bl_caps");
@@ -131,38 +213,75 @@
             });
         }
 
-        // submit: block invalid input, otherwise show loading until the server answers
-        form.addEventListener("submit", function (ev) {
-            var ok = checkLogin() & checkPassword();
-            if (!ok) {
-                ev.preventDefault();
-                (login.getAttribute("aria-invalid") === "true" ? login : password).focus();
-                return;
-            }
-            if (submit) {
-                submit.classList.add("bl-loading");
-                submit.setAttribute("aria-busy", "true");
-                submit.querySelector(".bl-submit-label").textContent = "Signing in…";
-                // disable after the browser has captured the submission
-                setTimeout(function () { submit.disabled = true; }, 0);
-            }
-        });
+        // form-level message (offline, slow connection) announced to screen readers
+        var formMsg = document.createElement("p");
+        formMsg.className = "bl-form-msg";
+        formMsg.setAttribute("role", "status");
+        formMsg.setAttribute("aria-live", "polite");
+        if (submit) { submit.parentNode.insertBefore(formMsg, submit); } else { form.appendChild(formMsg); }
 
-        // back/forward cache: never come back to a stuck spinner
-        window.addEventListener("pageshow", function () {
+        var slowTimer = null;
+        var label = submit && submit.querySelector(".bl-submit-label");
+        var idleLabel = label ? label.textContent : "";
+
+        function resetSubmit() {
+            clearTimeout(slowTimer);
             if (!submit) { return; }
             submit.disabled = false;
             submit.classList.remove("bl-loading");
             submit.removeAttribute("aria-busy");
-            submit.querySelector(".bl-submit-label").textContent = "Log in";
+            if (label) { label.textContent = idleLabel; }
+        }
+
+        form.addEventListener("submit", function (ev) {
+            var ok = [checkEmail(), checkPassword(), checkConfirm()].every(Boolean);
+            if (!ok) {
+                ev.preventDefault();
+                var first = form.querySelector("[aria-invalid='true']");
+                if (first) { first.focus(); }
+                return;
+            }
+            if (navigator.onLine === false) {
+                ev.preventDefault();
+                formMsg.textContent = "You're offline. Check your connection and try again.";
+                return;
+            }
+            if (submit && submit.disabled) { ev.preventDefault(); return; } // no double submits
+            formMsg.textContent = "";
+            if (isLogin || confirm) { sessionStorage.setItem("bl-splash", "1"); } // a flag only, never credentials
+            if (submit) {
+                submit.classList.add("bl-loading");
+                submit.setAttribute("aria-busy", "true");
+                if (label) { label.textContent = "Signing in…"; }
+                setTimeout(function () { submit.disabled = true; }, 0); // after the browser captured the submit
+            }
+            slowTimer = setTimeout(function () {
+                formMsg.textContent = "Still working… your connection seems slow. Please keep this page open.";
+            }, 8000);
         });
 
-        // server said wrong login/password: flag both fields and put the cursor back in the password
-        if (form.querySelector(".alert-danger")) {
-            login.setAttribute("aria-invalid", "true");
-            password.setAttribute("aria-invalid", "true");
-            form.classList.add("bl-shake");
-            password.focus();
+        // back/forward cache: never come back to a stuck spinner
+        window.addEventListener("pageshow", resetSubmit);
+
+        // server answered with an error: clear wording, never reveals whether the account exists
+        var alertBox = form.querySelector(".alert-danger");
+        if (alertBox) {
+            if (/wrong login\/password/i.test(alertBox.textContent)) {
+                alertBox.textContent = "Invalid email or password. Check both and try again.";
+            }
+            if (isLogin) {
+                [login, password].forEach(function (i) { if (i) { i.setAttribute("aria-invalid", "true"); } });
+                form.classList.add("bl-shake");
+                password.focus();
+                // the server error goes away as soon as the user edits either field
+                [login, password].forEach(function (i) {
+                    if (!i) { return; }
+                    i.addEventListener("input", function () {
+                        alertBox.remove();
+                        i.setAttribute("aria-invalid", "false");
+                    }, { once: true });
+                });
+            }
         }
 
         // demo accounts: fill both fields
@@ -170,9 +289,9 @@
             btn.addEventListener("click", function () {
                 login.value = btn.getAttribute("data-login");
                 password.value = "Brightloop#2026";
-                checkLogin();
+                checkEmail();
                 checkPassword();
-                submit && submit.focus();
+                if (submit) { submit.focus(); }
             });
         });
     });

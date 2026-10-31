@@ -116,6 +116,20 @@ Odoo's Register Payment (method/journal, amount, date, memo). The invoice list s
 Portal record rules limit customers to `partner_id child_of` their company. Passwords must have more than 8
 characters, upper and lower case, and a special character — enforced on every password set (create, change, reset).
 
+### Social login (Google, Facebook)
+
+Uses Odoo's built-in OAuth module. Buttons appear on the login page only once a provider is configured — no fake
+buttons. To enable:
+
+1. Create an OAuth client — Google: Cloud Console → APIs & Services → Credentials → OAuth client ID (Web);
+   Facebook: Meta for Developers → Create app → Facebook Login.
+2. Authorized redirect URI: `http://localhost:8069/auth_oauth/signin`
+3. In Odoo as admin: Settings → Users & Companies → **OAuth Providers** → Google / Facebook → paste the
+   **Client ID**, tick **Allowed**, save.
+
+New social users get a portal (customer) account. LinkedIn is not offered: it requires a server-side
+authorization-code flow that Odoo's OAuth module does not implement (future work).
+
 ### Simulated services (honest about it)
 
 - **Email**: delivered to Mailpit, a local fake SMTP inbox. Password resets and "Send invoice" emails appear there.

@@ -34,12 +34,12 @@ async function login(page, email) {
   await page.locator('input[name="password"]').pressSequentially(PASS, { delay: 40 });
   await page.click('button[type="submit"]');
   await page.waitForURL((u) => !u.pathname.startsWith('/web/login'), { timeout: 30000 });
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
 }
 
 async function go(page, action) {
   await page.goto(`${BASE}/odoo/action-brightloop_subscription.${action}`);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
   await wait(800);
 }
 
@@ -51,7 +51,7 @@ async function go(page, action) {
 
   // 1. Login page
   await page.goto(`${BASE}/web/login`);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
   await say(page, 'Brightloop: subscriptions, billing and payments in one Odoo 18 module');
   await page.click('.bl-theme-toggle');
   await say(page, 'Light and dark theme, remembered per browser', 2500);
@@ -87,7 +87,7 @@ async function go(page, action) {
   const sub = page.locator('.o_data_row').first();
   if (await sub.count()) {
     await sub.click();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     await say(page, 'Status bar shows the stage; wrong-order actions are blocked', 4000);
   }
   await go(page, 'action_bl_invoices');
@@ -99,12 +99,12 @@ async function go(page, action) {
   await page.goto(`${BASE}/web/session/logout`);
   await login(page, 'customer@acme.test');
   await page.goto(`${BASE}/my`);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
   await say(page, 'Customer portal: each customer sees only their own subscriptions and invoices', 4500);
 
   // 6. Simulated email
   await page.goto('http://localhost:8025');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
   await say(page, 'Emails (password reset, invoices) land in a local Mailpit inbox', 4000);
 
   const video = page.video();

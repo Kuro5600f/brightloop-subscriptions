@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Demo accounts. Password for all: Brightloop#2026 -->
+    <record id="user_bl_admin" model="res.users">
+        <field name="name">Ada Admin</field>
+        <field name="login">admin@brightloop.test</field>
+        <field name="email">admin@brightloop.test</field>
+        <field name="password">Brightloop#2026</field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('base.group_erp_manager'), ref('base.group_partner_manager'), ref('group_bl_admin')])]"/>
+    </record>
+
+    <record id="user_bl_staff" model="res.users">
+        <field name="name">Sam Sales</field>
+        <field name="login">staff@brightloop.test</field>
+        <field name="email">staff@brightloop.test</field>
+        <field name="password">Brightloop#2026</field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('base.group_partner_manager'), ref('group_bl_staff')])]"/>
+    </record>
+
+    <record id="partner_bl_acme" model="res.partner">
+        <field name="name">Acme Corp</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">billing@acme.test</field>
+        <field name="city">Gandhinagar</field>
+    </record>
+
+    <record id="user_bl_customer" model="res.users">
+        <field name="name">Carla Customer</field>
+        <field name="login">customer@acme.test</field>
+        <field name="email">customer@acme.test</field>
+        <field name="password">Brightloop#2026</field>
+        <field name="parent_id" ref="partner_bl_acme"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_portal')])]"/>
+    </record>
+
+    <record id="partner_bl_globex" model="res.partner">
+        <field name="name">Globex Ltd</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">ap@globex.test</field>
+    </record>
+    <record id="partner_bl_initech" model="res.partner">
+        <field name="name">Initech</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">finance@initech.test</field>
+    </record>
+    <record id="partner_bl_umbrella" model="res.partner">
+        <field name="name">Umbrella Health</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">accounts@umbrella.test</field>
+    </record>
+
+    <!-- Products and variants -->
+    <record id="attr_bl_brand" model="product.attribute">
+        <field name="name">Brand</field>
+        <field name="create_variant">always</field>
+    </record>
+    <record id="attr_bl_brand_generic" model="product.attribute.value">
+        <field name="name">Generic</field>
+        <field name="attribute_id" ref="attr_bl_brand"/>
+    </record>
+    <record id="attr_bl_brand_odoo" model="product.attribute.value">
+        <field name="name">Odoo</field>
+        <field name="attribute_id" ref="attr_bl_brand"/>
+    </record>
+
+    <record id="product_bl_crm" model="product.template">
+        <field name="name">Brightloop CRM</field>
+        <field name="type">service</field>
+        <field name="list_price">1000</field>
+        <field name="standard_price">250</field>
+        <field name="description_sale">Per-seat CRM licence.</field>
+        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('attr_bl_brand'), 'value_ids': [(6, 0, [ref('attr_bl_brand_generic'), ref('attr_bl_brand_odoo')])]})]"/>
+    </record>
+    <record id="product_bl_analytics" model="product.template">
+        <field name="name">Analytics Add-on</field>
+        <field name="type">service</field>
+        <field name="list_price">300</field>
+        <field name="standard_price">60</field>
+    </record>
+    <record id="product_bl_support" model="product.template">
+        <field name="name">Priority Support</field>
+        <field name="type">service</field>
+        <field name="list_price">200</field>
+        <field name="standard_price">80</field>
+    </record>
+
+    <!-- Plans -->
+    <record id="plan_bl_monthly" model="bl.plan">
+        <field name="name">Monthly</field>
+        <field name="billing_period">month</field>
+        <field name="allow_pause" eval="True"/>
+    </record>
+    <record id="plan_bl_yearly" model="bl.plan">
+        <field name="name">Yearly</field>
+        <field name="billing_period">year</field>
+        <field name="min_qty">5</field>
+        <field name="allow_early_close" eval="False"/>
+    </record>
+    <record id="plan_bl_weekly" model="bl.plan">
+        <field name="name">Weekly Trial</field>
+        <field name="billing_period">week</field>
+        <field name="allow_renew" eval="False"/>
+    </record>
+
+    <!-- Discounts -->
+    <record id="discount_bl_launch" model="bl.discount.rule">
+        <field name="name">Launch 10%</field>
+        <field name="discount_type">percent</field>
+        <field name="value">10</field>
+        <field name="min_amount">1500</field>
+        <field name="max_uses">20</field>
+    </record>
+    <record id="discount_bl_analytics" model="bl.discount.rule">
+        <field name="name">Analytics 100 off</field>
+        <field name="discount_type">fixed</field>
+        <field name="value">100</field>
+        <field name="apply_on">products</field>
+    </record>
+
+    <function model="bl.subscription" name="_bl_load_seed"/>
+</odoo>

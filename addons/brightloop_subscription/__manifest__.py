@@ -16,6 +16,7 @@
         'views/account_move_views.xml',
         'views/bl_discount_rule_views.xml',
         'views/bl_menus.xml',
+        'data/bl_seed.xml',
     ],
     'application': True,
 }

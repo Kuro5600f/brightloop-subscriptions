@@ -8,6 +8,9 @@ class BlCase(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # isolate from seed data: tests bill and discount only their own records
+        cls.env['bl.subscription'].search([('state', '=', 'active')]).write({'state': 'closed'})
+        cls.env['bl.discount.rule'].search([]).write({'active': False})
         cls.staff = new_test_user(cls.env, login='t_staff', groups='brightloop_subscription.group_bl_staff')
         cls.admin = new_test_user(cls.env, login='t_admin', groups='brightloop_subscription.group_bl_admin')
         cls.Plan = cls.env['bl.plan']

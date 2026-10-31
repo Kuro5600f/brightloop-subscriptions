@@ -14,6 +14,9 @@
     var setItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (k, v) {
         setItem.apply(this, arguments);
-        if (k === "bl-theme") { document.documentElement.setAttribute("data-bl-theme", v); }
+        if (k === "bl-theme") {
+            document.documentElement.setAttribute("data-bl-theme", v);
+            window.dispatchEvent(new CustomEvent("bl-theme-change", { detail: v })); // dashboard follows
+        }
     };
 })();

@@ -39,4 +39,42 @@ html[data-bl-theme="dark"] {
     .o_statusbar_status .o_arrow_button_current { background-color: #8C3348 !important; color: #F5F1EB !important; }
     .o_chatter, .o-mail-Chatter { background-color: #141416 !important; color: #F5F1EB; }
     .badge.text-bg-light, .bg-light, .bg-white, .bg-view, .o_view_nocontent { background-color: #202024 !important; color: #F5F1EB !important; }
+
+    // links and relational fields: sage is unreadable on charcoal, use gold
+    .o_form_view a, .o_field_widget a, .o_form_uri, .o_field_many2one a, .o_list_renderer a,
+    .o_field_many2one .o_form_uri span, .o_kanban_record a { color: #E2B968 !important; }
+
+    // left filter panel (Apps, Invoicing filters)
+    .o_search_panel, .o_search_panel section, .o_search_panel .list-group, .o_search_panel .list-group-item,
+    .o_search_panel li, .o_search_panel header { background-color: #202024 !important; color: #F5F1EB !important; border-color: #44434A !important; }
+    .o_search_panel .active, .o_search_panel li.active > header, .o_search_panel .o_search_panel_category_value .active {
+        background-color: #29292E !important; color: #E2B968 !important;
+    }
+    .o_search_panel .o_search_panel_counter, .o_search_panel small { color: #C4C2C0 !important; }
+
+    // notebook tabs, breadcrumbs, chatter bar, pager
+    .nav-tabs, .o_notebook .nav-tabs, .o_notebook_headers { background-color: #202024 !important; border-color: #44434A !important; }
+    .nav-tabs .nav-link { background-color: transparent !important; color: #C4C2C0 !important; border-color: transparent !important; }
+    .nav-tabs .nav-link.active { background-color: #29292E !important; color: #F5F1EB !important; border-color: #44434A !important; }
+    .breadcrumb, .breadcrumb-item, .o_breadcrumb, .o_last_breadcrumb_item, .o_control_panel_breadcrumbs,
+    .o_breadcrumb input { background-color: transparent !important; color: #F5F1EB !important; }
+    .o-mail-Chatter-top, .o-mail-Form-chatter, .o-mail-Chatter .o-mail-Thread, .o_FormRenderer_chatterContainer {
+        background-color: #202024 !important; color: #F5F1EB !important;
+    }
+    .o_pager, .o_pager_value, .o_pager_limit { color: #F5F1EB !important; }
+    .o_field_tags .badge, .o_tag { background-color: #29292E !important; color: #F5F1EB !important; }
+}
+
+// sun/moon button in Odoo's top bar
+.o_bl_theme_btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.05rem;
+    &:hover { background-color: rgba(127, 127, 127, 0.15); }
 }

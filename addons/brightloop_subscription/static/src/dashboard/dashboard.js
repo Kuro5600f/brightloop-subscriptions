@@ -97,7 +97,17 @@ export class BlDashboard extends Component {
             detailError: null,
         });
         onWillStart(() => Promise.all([this.load(), this.loadList()]));
-        onWillUnmount(() => clearTimeout(this.searchTimer));
+        // follow the top-bar theme switch
+        const onTheme = (ev) => {
+            if (ev.detail === "dark" || ev.detail === "light") {
+                this.state.theme = ev.detail;
+            }
+        };
+        window.addEventListener("bl-theme-change", onTheme);
+        onWillUnmount(() => {
+            clearTimeout(this.searchTimer);
+            window.removeEventListener("bl-theme-change", onTheme);
+        });
         // move focus into the drawer when it opens
         useEffect(
             (id) => {

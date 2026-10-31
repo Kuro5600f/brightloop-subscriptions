@@ -32,6 +32,7 @@
             'brightloop_subscription/static/src/dashboard/*',
             'brightloop_subscription/static/src/splash/*',
             'brightloop_subscription/static/src/brand/theme.js',
+            'brightloop_subscription/static/src/brand/theme_toggle.js',
             'brightloop_subscription/static/src/brand/theme.scss',
         ],
         'web.assets_frontend': [

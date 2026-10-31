@@ -48,16 +48,14 @@ html[data-bl-theme="dark"] {
 }
 
 /* full-bleed split screen: art fills the left half, form the right half */
-.bl-auth {
-    min-height: 100vh;
-    min-height: 100dvh;
-}
+.bl-auth-body { overflow-x: hidden; }
+
+.bl-auth { min-height: 100vh; }
 
 .bl-auth-card {
     min-height: 100vh;
-    min-height: 100dvh;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 55fr 45fr;
     background: var(--bl-card);
     transition: background-color 0.45s ease;
 }
@@ -129,7 +127,7 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     transition: background-color 0.45s ease;
 
     /* keep the form a comfortable width in the middle of its half */
-    > * { width: 100%; max-width: 400px; }
+    > * { width: 100%; max-width: 420px; }
     .oe_login_form, form { width: 100%; }
     a { color: var(--bl-accent-2); font-weight: 500; }
     a:hover { color: var(--bl-accent); }
@@ -337,11 +335,28 @@ html[data-bl-theme="dark"] .bl-theme-toggle {
     .bl-icon-moon { display: none; }
 }
 
-/* ---------- small screens: art becomes a banner above the form ---------- */
+/* mobile browsers: use the visible height (toolbars excluded); separate rule so the minifier keeps it */
+@supports (height: 100dvh) {
+    .bl-auth, .bl-auth-card { min-height: 100dvh; }
+}
+
+/* ---------- large screens: scale type and controls up ---------- */
+@media (min-width: 1440px) {
+    .bl-auth-panel > * { max-width: 440px; }
+    .bl-auth-title { font-size: 2.5rem; }
+    .bl-auth-sub { font-size: 1.0625rem; }
+    .bl-art-welcome { font-size: 3.75rem; }
+    .bl-art-tag { font-size: 1.125rem; max-width: 26rem; }
+    .bl-auth-panel .form-control { min-height: 54px; font-size: 1.0625rem; }
+    .bl-auth-panel .btn-primary { min-height: 56px; font-size: 1.0625rem; }
+}
+
+/* ---------- small screens: form first, art shrinks to a slim banner above it ---------- */
 @media (max-width: 860px) {
     .bl-auth-card { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    .bl-auth-art { min-height: 200px; }
-    .bl-art-copy { top: 28px; left: 24px; right: 24px; }
+    .bl-auth-art { min-height: 128px; }
+    .bl-art-copy { top: 50%; transform: translateY(-50%); left: 24px; right: 24px; }
+    .bl-art-welcome { font-size: 1.75rem; }
     .bl-art-tag { display: none; }
     .bl-auth-panel { padding: 28px 20px 32px; }
     .bl-auth-title { font-size: 1.625rem; }

@@ -11,6 +11,8 @@ class BlSubscriptionSeed(models.Model):
     @api.model
     def _bl_load_seed(self):
         """Realistic demo data: variant pricing, tax, template and subscriptions in every state with history."""
+        if self.env.ref('%s.template_bl_crm_starter' % MODULE, raise_if_not_found=False):
+            return  # already seeded: `docker compose up` re-runs install on every start
         ref = lambda x: self.env.ref('%s.%s' % (MODULE, x))  # noqa: E731
         today = fields.Date.context_today(self)
         company = self.env.company

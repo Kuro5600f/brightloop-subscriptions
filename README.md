@@ -11,6 +11,8 @@ well: products and variants, taxes, payment terms, invoices, payments, PDF print
 
 ## Quick start
 
+**Judges: see [LOGIN.md](LOGIN.md) — one command (`docker compose up -d`) and the login emails/password.**
+
 Needs Docker Desktop. From the repo root:
 
 ```bash

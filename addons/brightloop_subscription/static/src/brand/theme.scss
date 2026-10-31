@@ -1,0 +1,42 @@
+// Whole-app theme for Odoo screens (lists, forms, menus), tokens from UIUX/DESIGN_SYSTEM.md.
+// shortcut: covers the main surfaces only; rare Odoo widgets may keep Odoo's light styling in dark mode.
+
+html[data-bl-theme="light"] {
+    .o_web_client, .o_action_manager, .o_content, .o_view_controller { background-color: #F8F6F0; }
+    .o_main_navbar { background-color: #FFFEFA; border-bottom: 1px solid #DEDCD2; }
+    .o_main_navbar .o_menu_brand, .o_main_navbar .dropdown-toggle, .o_main_navbar a { color: #28231E !important; }
+    .o_form_view .o_form_sheet_bg { background-color: #F8F6F0; }
+    .o_form_view .o_form_sheet { background-color: #FFFEFA; border-radius: 16px; border-color: #DEDCD2; }
+    .o_control_panel { background-color: #F8F6F0; border-bottom-color: #DEDCD2; }
+    .o_list_renderer .table thead th { background-color: #F1F0E8; color: #605D55; }
+}
+
+html[data-bl-theme="dark"] {
+    color-scheme: dark;
+    body, .o_web_client, .o_action_manager, .o_content, .o_view_controller, .o_control_panel,
+    .o_form_view .o_form_sheet_bg, .o_kanban_renderer, .o_home_menu { background-color: #141416 !important; color: #F5F1EB; }
+    .o_main_navbar { background-color: #202024 !important; border-bottom: 1px solid #44434A; }
+    .o_main_navbar, .o_main_navbar a, .o_main_navbar .dropdown-toggle, .o_main_navbar .o_menu_brand { color: #F5F1EB !important; }
+    .o_form_view .o_form_sheet, .o_kanban_record, .card, .modal-content, .dropdown-menu, .o-dropdown--menu,
+    .o_list_renderer, .o_searchview, .o_cp_switch_buttons .btn, .o_notebook .tab-content {
+        background-color: #202024 !important; color: #F5F1EB !important; border-color: #44434A !important;
+    }
+    .o_list_renderer .table { --table-bg: #202024; --table-color: #F5F1EB; color: #F5F1EB; }
+    .o_list_renderer .table thead th, .o_list_renderer .table tfoot td { background-color: #29292E !important; color: #C4C2C0 !important; }
+    .o_list_renderer .table td, .o_list_renderer .table th { border-color: #44434A !important; }
+    .o_list_renderer .table tbody tr:hover > * { background-color: #29292E !important; }
+    .o_data_row.o_data_row_selected > * { background-color: rgba(140, 51, 72, 0.38) !important; }
+    input, textarea, select, .o_input, .form-control, .form-select, .o_field_widget .o_input {
+        background-color: #29292E !important; color: #F5F1EB !important; border-color: #44434A !important;
+    }
+    .dropdown-item, .o_menu_sections a, label, .o_form_label, h1, h2, h3, h4, .o_stat_text, .o_stat_value { color: #F5F1EB !important; }
+    .dropdown-item:hover, .dropdown-item.focus { background-color: #29292E !important; }
+    .text-muted, .o_field_widget .text-muted, .o_form_view .o_form_label_empty { color: #C4C2C0 !important; }
+    a, .btn-link { color: #E2B968; }
+    .btn-primary, .o_form_button_save { background-color: #E2B968 !important; border-color: #E2B968 !important; color: #21180E !important; }
+    .btn-secondary, .btn-light, .o_cp_switch_buttons .btn { background-color: #29292E !important; color: #F5F1EB !important; border-color: #44434A !important; }
+    .o_statusbar_status .o_arrow_button { background-color: #29292E !important; color: #C4C2C0 !important; }
+    .o_statusbar_status .o_arrow_button_current { background-color: #8C3348 !important; color: #F5F1EB !important; }
+    .o_chatter, .o-mail-Chatter { background-color: #141416 !important; color: #F5F1EB; }
+    .badge.text-bg-light, .bg-light, .bg-white, .bg-view, .o_view_nocontent { background-color: #202024 !important; color: #F5F1EB !important; }
+}

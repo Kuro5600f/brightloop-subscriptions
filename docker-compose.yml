@@ -20,7 +20,8 @@ services:
       - db
       - mailpit
     # serve only the demo DB (tests/perf DBs live alongside it); `docker compose run` overrides this
-    command: --db-filter=^brightloop$$
+    # one command for judges: creates/updates the demo DB with seed data, then serves it
+    command: -d brightloop -i brightloop_subscription --without-demo=all --db-filter=^brightloop$$
     ports:
       - "8069:8069"
     environment:

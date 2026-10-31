@@ -9,6 +9,12 @@
     <menuitem id="menu_bl_customers" name="Customers" parent="menu_bl_subscriptions"
               action="account.res_partner_action_customer" sequence="20"/>
     <menuitem id="menu_bl_billing" name="Billing" parent="menu_bl_root" sequence="30"/>
+    <menuitem id="menu_bl_run_billing" name="Run Billing Now" parent="menu_bl_billing"
+              action="action_bl_run_billing" sequence="5"/>
+    <menuitem id="menu_bl_invoices" name="Invoices" parent="menu_bl_billing" action="action_bl_invoices" sequence="10"/>
+    <menuitem id="menu_bl_overdue" name="Overdue Invoices" parent="menu_bl_billing" action="action_bl_overdue" sequence="20"/>
+    <menuitem id="menu_bl_payments" name="Payments" parent="menu_bl_billing"
+              action="account.action_account_payments" sequence="30"/>
 
     <menuitem id="menu_bl_config" name="Configuration" parent="menu_bl_root" sequence="90" groups="group_bl_admin"/>
     <menuitem id="menu_bl_plan" name="Plans" parent="menu_bl_config" action="action_bl_plan" sequence="10"/>

@@ -258,31 +258,82 @@
             slowTimer = setTimeout(function () {
                 formMsg.textContent = "Still working… your connection seems slow. Please keep this page open.";
             }, 8000);
+            // login posts in the background so server/network failures become inline messages;
+            // sign-up/reset and the debug "superuser" button keep the normal post
+            if (isLogin && window.fetch && window.AbortController && !(ev.submitter && ev.submitter.name)) {
+                ev.preventDefault();
+                sendLogin();
+            }
         });
+
+        function failLogin(message) {
+            sessionStorage.removeItem("bl-splash");
+            resetSubmit();
+            showAuthError(message);
+        }
+
+        function sendLogin() {
+            var ctrl = new AbortController();
+            var timeout = setTimeout(function () { ctrl.abort(); }, 30000);
+            fetch(form.action, { method: "POST", body: new FormData(form), credentials: "same-origin", signal: ctrl.signal })
+                .then(function (res) {
+                    clearTimeout(timeout);
+                    if (res.status >= 500) { throw { server: true }; }
+                    if (res.redirected && new URL(res.url).pathname !== "/web/login") {
+                        window.location.assign(res.url); // signed in (or 2FA step): follow Odoo's redirect
+                        return null;
+                    }
+                    return res.text().then(function (html) {
+                        // Odoo re-rendered the login page: take its error (generic, never says if the account exists)
+                        var doc = new DOMParser().parseFromString(html, "text/html");
+                        var err = doc.querySelector("form.oe_login_form .alert-danger");
+                        failLogin(err ? err.textContent.trim() : "Sign-in didn't complete. Please try again.");
+                    });
+                })
+                .catch(function (e) {
+                    clearTimeout(timeout);
+                    failLogin(e && e.name === "AbortError" ? "The server took too long to answer. Please try again."
+                        : e && e.server ? "The server had a problem signing you in. Please try again in a moment."
+                            : "Can't reach the server. Check your connection and try again.");
+                });
+        }
 
         // back/forward cache: never come back to a stuck spinner
         window.addEventListener("pageshow", resetSubmit);
 
-        // server answered with an error: clear wording, never reveals whether the account exists
-        var alertBox = form.querySelector(".alert-danger");
-        if (alertBox) {
-            if (/wrong login\/password/i.test(alertBox.textContent)) {
-                alertBox.textContent = "Invalid email or password. Check both and try again.";
+        // auth error box above the buttons: clear wording, never reveals whether the account exists
+        function showAuthError(text) {
+            var box = form.querySelector(".alert-danger");
+            if (!box) {
+                box = document.createElement("p");
+                box.className = "alert alert-danger";
+                box.setAttribute("role", "alert");
+                var buttons = form.querySelector(".oe_login_buttons");
+                form.insertBefore(box, buttons);
             }
-            if (isLogin) {
+            var badCredentials = /wrong login\/password|invalid email or password/i.test(text);
+            box.textContent = badCredentials ? "Invalid email or password. Check both and try again." : text;
+            formMsg.textContent = "";
+            if (!isLogin) { return; }
+            if (badCredentials) {
                 [login, password].forEach(function (i) { if (i) { i.setAttribute("aria-invalid", "true"); } });
-                form.classList.add("bl-shake");
                 password.focus();
-                // the server error goes away as soon as the user edits either field
-                [login, password].forEach(function (i) {
-                    if (!i) { return; }
-                    i.addEventListener("input", function () {
-                        alertBox.remove();
-                        i.setAttribute("aria-invalid", "false");
-                    }, { once: true });
-                });
             }
+            form.classList.remove("bl-shake");
+            void form.offsetWidth; // restart the shake animation on repeated failures
+            form.classList.add("bl-shake");
+            // the error goes away as soon as the user edits either field
+            [login, password].forEach(function (i) {
+                if (!i) { return; }
+                i.addEventListener("input", function () {
+                    box.remove();
+                    i.setAttribute("aria-invalid", "false");
+                }, { once: true });
+            });
         }
+
+        var serverError = form.querySelector(".alert-danger");
+        if (serverError) { showAuthError(serverError.textContent.trim()); }
 
         // demo accounts: fill both fields
         document.querySelectorAll(".bl-demo-fill").forEach(function (btn) {

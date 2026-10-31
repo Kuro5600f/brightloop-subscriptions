@@ -12,6 +12,7 @@ class TestMinorFixes(BlCase):
         sub = self.activate(self.make_sub(qty=3))  # untaxed 300
         self.Sub._run_billing(today=self.today)
         self.assertAlmostEqual(sub.invoice_ids.amount_untaxed, 200.00, places=2)
+        self.assertEqual(self.env.ref('product.decimal_discount').digits, 2)  # invoices keep "10.00%", not "10.000000%"
 
     def test_min_amount_uses_untaxed_for_tax_included_prices(self):
         incl = self.env['account.tax'].create({'name': 'Incl 15', 'amount': 15, 'amount_type': 'percent',

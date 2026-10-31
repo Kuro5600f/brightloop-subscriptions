@@ -45,7 +45,7 @@ every state with paid, partially paid and overdue invoices.
 docker compose run --rm odoo -d bl_test -i brightloop_subscription --test-tags /brightloop_subscription --stop-after-init
 ```
 
-56 tests cover: plan date maths, lifecycle guards, billing (one invoice per period, rerun creates none, catch-up,
+63 tests cover: plan date maths, lifecycle guards, billing (one invoice per period, rerun creates none, catch-up,
 DB-level duplicate guard, cancel then rebill, end date and auto-close, visible errors), discounts (best rule wins,
 minimums, expiry, max uses within one run), portal isolation, password policy, dashboard figures, staff cannot create users.
 
@@ -81,11 +81,24 @@ own savepoint; a failure is written to `billing_error` (red banner and "Billing 
 **Duplicate billing is blocked by the database**, not only by Python: a unique index on
 `(bl_subscription_id, bl_period_start) WHERE state != 'cancel'`. Cancelling an invoice frees its period for rebilling.
 
+### Plan prices
+
+A plan can set its own price per product per billing period (e.g. CRM Yearly 10,000 per seat instead of 12 × monthly).
+Products without a plan price use their sales price. Variant extras (Odoo brand +560) are added on top.
+
 ### Discounts
 
-The single most valuable eligible rule is applied (no stacking) by writing Odoo's line `discount %`, so taxes stay
-correct. A fixed amount is turned into a percentage of the eligible base, capped at 100%. Usage is counted from
-non-cancelled invoices, so it cannot drift, and is re-read during a run so `max_uses` holds within one batch.
+The single most valuable eligible rule is applied (no stacking). A percentage uses Odoo's line `discount %`. A fixed
+amount becomes exact negative "Discount" lines, one per tax set, so tax is computed on the discounted base and the
+total is correct to the cent. Usage is counted from non-cancelled invoices, so it cannot drift; limited rules are
+row-locked and re-checked, so `max_uses` holds within one run and across concurrent runs. The base is the untaxed
+amount, also for tax-included prices.
+
+### Customer self-service
+
+Customers sign up themselves at `/web/signup` (one account per email, same password rule) or are invited. In the
+portal they see their subscriptions and invoices, and can **pause, resume or close** a subscription — using the same
+lifecycle checks and plan rules as staff.
 
 ### Payments and invoice status
 
@@ -108,11 +121,28 @@ characters, upper and lower case, and a special character — enforced on every 
 - **Email**: delivered to Mailpit, a local fake SMTP inbox. Password resets and "Send invoice" emails appear there.
 - **Payments**: recorded manually by staff; no payment gateway.
 
-### Performance
+### Performance (measured)
 
 Indexes on subscription `state`, `next_invoice_date`, `partner_id` and on `account_move.bl_subscription_id`. Lists page
 at 80 rows (portal: 20). Dashboard numbers are SQL aggregates plus `LIMIT 10` lists, so page cost does not grow with
-data size. The billing run works in batches of 500. See [`docs/TRADEOFFS.md`](docs/TRADEOFFS.md) for the scaling path.
+data size.
+
+[`tools/perf_check.py`](tools/perf_check.py) loads 5,000 subscriptions, bills and confirms them, then times each page
+as the staff user (server time, laptop, Docker on Windows):
+
+| Page / query (5,006 subscriptions, 5,017 invoices) | Time |
+|---|---|
+| Subscription list, page 1 (80 rows + total count) | 0.012 s |
+| Subscription list, page 50 | 0.004 s |
+| "Due for billing" filter | 0.001 s |
+| Invoice list, outstanding filter | 0.015 s |
+| Finance dashboard (all KPIs) | 0.017 s |
+| Billing run with nothing due (duplicate check) | 0.004 s |
+| Billing run creating 5,001 invoices | 457 s (~11 invoices/s, background cron) |
+
+Every page is far under the 2-second target. The billing run is the slow part: it is a background job, and invoice
+creation is Odoo's accounting engine (journal entries, taxes). See [`docs/TRADEOFFS.md`](docs/TRADEOFFS.md) for the
+scaling path.
 
 ## More docs
 

@@ -76,12 +76,29 @@ class BlDiscountRule(models.Model):
         return rules.filtered(ok)
 
     def _apply_to(self, move):
-        """Write the discount as the line discount % so Odoo recomputes taxes correctly."""
+        """Percent: line discount %. Fixed: exact negative lines, one per tax set, so tax is on the discounted base."""
         self.ensure_one()
         lines = self._base_lines(move)
         if self.discount_type == 'percent':
-            pct = self.value
+            lines.write({'discount': self.value, 'bl_discount_rule_id': self.id})
         else:
-            pct = min(100.0, self.value / self._base_amount(lines) * 100)
-        lines.write({'discount': pct, 'bl_discount_rule_id': self.id})
+            base = self._base_amount(lines)
+            total = move.currency_id.round(min(self.value, base))
+            groups = {}
+            for line in lines:
+                groups.setdefault(line.tax_ids, 0.0)
+                groups[line.tax_ids] += line.price_subtotal
+            new_lines, left = [], total
+            for i, (taxes, group_base) in enumerate(groups.items()):
+                # split by each tax set's share of the base; the last group takes the rounding remainder
+                amount = left if i == len(groups) - 1 else move.currency_id.round(total * group_base / base)
+                left -= amount
+                new_lines.append((0, 0, {
+                    'name': 'Discount: %s' % self.name,
+                    'quantity': 1,
+                    'price_unit': -amount,
+                    'tax_ids': [(6, 0, taxes.ids)],
+                    'bl_discount_rule_id': self.id,
+                }))
+            move.write({'invoice_line_ids': new_lines})
         self.invalidate_recordset(['used_count'])

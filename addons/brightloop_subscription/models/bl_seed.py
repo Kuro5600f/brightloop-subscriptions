@@ -27,8 +27,11 @@ class BlSubscriptionSeed(models.Model):
         analytics = ref('product_bl_analytics').product_variant_id
         support = ref('product_bl_support').product_variant_id
 
+        # own tax group, so invoice totals read "GST 18%" instead of the chart's generic group name
+        group = self.env['account.tax.group'].create({'name': 'GST 18%', 'company_id': company.id})
         tax = self.env['account.tax'].create({
-            'name': 'GST 18%', 'amount': 18, 'amount_type': 'percent', 'type_tax_use': 'sale'})
+            'name': 'GST 18%', 'amount': 18, 'amount_type': 'percent', 'type_tax_use': 'sale',
+            'tax_group_id': group.id})
         (crm | ref('product_bl_analytics') | ref('product_bl_support')).taxes_id = [(6, 0, tax.ids)]
         ref('discount_bl_analytics').product_ids = [(6, 0, analytics.ids)]
 

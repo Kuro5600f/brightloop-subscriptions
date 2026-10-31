@@ -67,7 +67,7 @@ void main() {
     float triangleWave = abs(fract(bandVal) - 0.5) * 2.0;
 
     // line width: source used 0.02 (hairline); widened for the login panel
-    float topoLines = smoothstep(0.045, 0.00, triangleWave) * 0.45;
+    float topoLines = smoothstep(0.065, 0.00, triangleWave) * 0.45;
 
     float a = clamp(gridLines + topoLines, 0.0, 1.0);
     gl_FragColor = vec4(u_color * a, a);

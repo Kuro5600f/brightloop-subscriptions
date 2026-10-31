@@ -17,6 +17,8 @@ html[data-bl-theme="light"] {
     --bl-art-bg: linear-gradient(180deg, #cfe3f7 0%, #f6dfd2 100%);
     --bl-art-text: #1b2440;
     --bl-shadow: 0 30px 80px -30px rgba(80, 50, 20, 0.35);
+    --bl-glass: rgba(255, 250, 244, 0.5);
+    --bl-glass-line: rgba(255, 255, 255, 0.55);
 }
 
 html[data-bl-theme="dark"] {
@@ -36,6 +38,8 @@ html[data-bl-theme="dark"] {
     --bl-art-bg: radial-gradient(circle at 30% 20%, #1b2236 0%, #06080d 70%);
     --bl-art-text: #f3f5fa;
     --bl-shadow: 0 30px 90px -30px rgba(0, 0, 0, 0.8);
+    --bl-glass: rgba(10, 14, 24, 0.45);
+    --bl-glass-line: rgba(255, 255, 255, 0.08);
 }
 
 .bl-auth-body {
@@ -60,8 +64,10 @@ html[data-bl-theme="dark"] {
     transition: background-color 0.45s ease;
 }
 
-/* ---------- art panel ---------- */
+/* ---------- art panel: spans the full screen, the form panel floats over its right part ---------- */
 .bl-auth-art {
+    grid-column: 1 / -1;
+    grid-row: 1;
     position: relative;
     min-height: 100%;
     background: var(--bl-art-bg);
@@ -93,7 +99,7 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     position: absolute;
     z-index: 2;
     left: clamp(24px, 6vw, 88px);
-    right: clamp(24px, 6vw, 88px);
+    right: calc(45% + clamp(24px, 6vw, 88px)); /* stay in the visible left part */
     top: 22%;
     color: var(--bl-art-text);
     pointer-events: none;
@@ -122,8 +128,16 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    z-index: 3;
     padding: 48px clamp(24px, 6vw, 96px);
-    background: var(--bl-panel);
+    /* frosted glass: the animation shows through, text stays readable */
+    background: var(--bl-glass);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    border-left: 1px solid var(--bl-glass-line);
     transition: background-color 0.45s ease;
 
     /* keep the form a comfortable width in the middle of its half */
@@ -336,6 +350,11 @@ html[data-bl-theme="dark"] .bl-theme-toggle {
 }
 
 /* mobile browsers: use the visible height (toolbars excluded); separate rule so the minifier keeps it */
+/* no blur support: fall back to a mostly solid panel so text keeps its contrast */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .bl-auth-panel { background: var(--bl-panel); }
+}
+
 @supports (height: 100dvh) {
     .bl-auth, .bl-auth-card { min-height: 100dvh; }
 }
@@ -354,7 +373,8 @@ html[data-bl-theme="dark"] .bl-theme-toggle {
 /* ---------- small screens: form first, art shrinks to a slim banner above it ---------- */
 @media (max-width: 860px) {
     .bl-auth-card { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    .bl-auth-art { min-height: 128px; }
+    .bl-auth-art { min-height: 128px; grid-column: 1; grid-row: 1; }
+    .bl-auth-panel { grid-column: 1; grid-row: 2; border-left: 0; background: var(--bl-panel); }
     .bl-art-copy { top: 50%; transform: translateY(-50%); left: 24px; right: 24px; }
     .bl-art-welcome { font-size: 1.75rem; }
     .bl-art-tag { display: none; }

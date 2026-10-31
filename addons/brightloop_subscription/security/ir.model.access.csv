@@ -9,3 +9,5 @@ access_bl_sub_staff,bl.subscription staff,model_bl_subscription,group_bl_staff,1
 access_bl_sub_line_staff,bl.subscription.line staff,model_bl_subscription_line,group_bl_staff,1,1,1,1
 access_bl_discount_staff,bl.discount.rule staff,model_bl_discount_rule,group_bl_staff,1,0,0,0
 access_bl_discount_admin,bl.discount.rule admin,model_bl_discount_rule,group_bl_admin,1,1,1,1
+access_bl_sub_portal,bl.subscription portal,model_bl_subscription,base.group_portal,1,0,0,0
+access_bl_sub_line_portal,bl.subscription.line portal,model_bl_subscription_line,base.group_portal,1,0,0,0

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_bl" inherit_id="portal.portal_my_home" priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Subscriptions</t>
+                <t t-set="url" t-value="'/my/subscriptions'"/>
+                <t t-set="placeholder_count" t-value="'subscription_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_breadcrumbs_bl" inherit_id="portal.portal_breadcrumbs" priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'bl_subscription'" class="breadcrumb-item">
+                <a href="/my/subscriptions">Subscriptions</a>
+            </li>
+            <li t-if="page_name == 'bl_subscription' and sub" class="breadcrumb-item active" t-out="sub.name"/>
+        </xpath>
+    </template>
+
+    <template id="bl_state_badge">
+        <t t-set="badge_colors" t-value="{'draft': 'secondary', 'quotation': 'info', 'confirmed': 'info', 'active': 'success', 'paused': 'warning', 'closed': 'dark'}"/>
+        <span t-attf-class="badge rounded-pill text-bg-#{badge_colors.get(state, 'secondary')}"
+              t-out="dict(s._fields['state'].selection).get(state)"/>
+    </template>
+
+    <template id="portal_my_subscriptions">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar"><t t-set="title">Subscriptions</t></t>
+            <p t-if="not subscriptions" class="alert alert-info">You have no subscriptions yet.</p>
+            <t t-if="subscriptions" t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Plan</th>
+                        <th>Start</th>
+                        <th>Next Invoice</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="subscriptions" t-as="s">
+                        <td><a t-attf-href="/my/subscriptions/#{s.id}" t-out="s.name"/></td>
+                        <td t-out="s.plan_id.name"/>
+                        <td t-out="s.date_start" t-options="{'widget': 'date'}"/>
+                        <td t-out="s.next_invoice_date" t-options="{'widget': 'date'}"/>
+                        <td class="text-end" t-out="s.amount_total"
+                            t-options="{'widget': 'monetary', 'display_currency': s.currency_id}"/>
+                        <td class="text-end"><t t-call="brightloop_subscription.bl_state_badge"><t t-set="state" t-value="s.state"/></t></td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_subscription">
+        <t t-call="portal.portal_layout">
+            <t t-set="s" t-value="sub"/>
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0" t-out="sub.name"/>
+                    <t t-call="brightloop_subscription.bl_state_badge"><t t-set="state" t-value="sub.state"/></t>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div><strong>Plan:</strong> <span t-out="sub.plan_id.name"/></div>
+                            <div><strong>Start:</strong> <span t-out="sub.date_start" t-options="{'widget': 'date'}"/></div>
+                            <div t-if="sub.date_end"><strong>Expiry:</strong> <span t-out="sub.date_end" t-options="{'widget': 'date'}"/></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div t-if="sub.next_invoice_date"><strong>Next invoice:</strong> <span t-out="sub.next_invoice_date" t-options="{'widget': 'date'}"/></div>
+                            <div t-if="sub.payment_term_id"><strong>Payment terms:</strong> <span t-out="sub.payment_term_id.name"/></div>
+                        </div>
+                    </div>
+                    <table class="table table-sm">
+                        <thead><tr><th>Product</th><th class="text-end">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Subtotal</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="sub.line_ids" t-as="line">
+                                <td t-out="line.product_id.display_name"/>
+                                <td class="text-end" t-out="line.quantity"/>
+                                <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': sub.currency_id}"/>
+                                <td class="text-end" t-out="line.price_subtotal" t-options="{'widget': 'monetary', 'display_currency': sub.currency_id}"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-end"><strong>Total (incl. tax): </strong>
+                        <span t-out="sub.amount_total" t-options="{'widget': 'monetary', 'display_currency': sub.currency_id}"/></div>
+
+                    <h5 class="mt-4">Invoices</h5>
+                    <p t-if="not invoices" class="text-muted">No invoices yet.</p>
+                    <table t-if="invoices" class="table table-sm">
+                        <thead><tr><th>Invoice</th><th>Date</th><th>Due</th><th class="text-end">Amount Due</th><th class="text-end">Status</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="invoices" t-as="inv">
+                                <td><a t-att-href="inv.get_portal_url()" t-out="inv.name"/></td>
+                                <td t-out="inv.invoice_date" t-options="{'widget': 'date'}"/>
+                                <td t-out="inv.invoice_date_due" t-options="{'widget': 'date'}"/>
+                                <td class="text-end" t-out="inv.amount_residual" t-options="{'widget': 'monetary', 'display_currency': inv.currency_id}"/>
+                                <td class="text-end" t-out="dict(inv._fields['payment_state'].selection).get(inv.payment_state)"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

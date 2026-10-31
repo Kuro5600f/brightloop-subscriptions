@@ -8,6 +8,8 @@
     'data': [
         'security/bl_security.xml',
         'security/ir.model.access.csv',
+        'security/bl_portal_rules.xml',
+        'views/bl_portal_templates.xml',
         'views/bl_plan_views.xml',
         'data/bl_sequence.xml',
         'views/bl_quote_template_views.xml',

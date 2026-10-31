@@ -30,7 +30,6 @@
         'web.assets_frontend': [
             'brightloop_subscription/static/src/login/login.scss',
             'brightloop_subscription/static/src/login/anim_topo.js',
-            'brightloop_subscription/static/src/login/anim_day.js',
             'brightloop_subscription/static/src/login/login.js',
         ],
     },

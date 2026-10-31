@@ -14,7 +14,7 @@ html[data-bl-theme="light"] {
     --bl-ring: rgba(194, 65, 12, 0.35);
     --bl-error: #b42318;
     --bl-ok: #1f7a4d;
-    --bl-art-bg: linear-gradient(180deg, #cfe3f7 0%, #f6dfd2 100%);
+    --bl-art-bg: radial-gradient(circle at 30% 20%, #fbf5ec 0%, #f0e2d1 75%);
     --bl-art-text: #1b2440;
     --bl-shadow: 0 30px 80px -30px rgba(80, 50, 20, 0.35);
     --bl-glass: rgba(255, 250, 244, 0.5);

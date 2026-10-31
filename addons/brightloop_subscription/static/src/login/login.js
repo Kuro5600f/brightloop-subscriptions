@@ -19,13 +19,17 @@
         var current = null; // {layer, anim}
 
         function mountFor(theme) {
-            var factory = window.BlLoginAnim && window.BlLoginAnim[theme === "dark" ? "topo" : "day"];
+            var factory = window.BlLoginAnim && window.BlLoginAnim.topo;
             var layer = document.createElement("div");
             layer.className = "bl-anim";
             art.insertBefore(layer, art.querySelector(".bl-art-copy"));
             var anim = null;
             try {
-                anim = factory ? factory(layer, { reducedMotion: reduce }) : null;
+                // same topo lines in both themes: white on night blue, warm brown (#8a4a26) on cream
+                anim = factory ? factory(layer, {
+                    reducedMotion: reduce,
+                    color: theme === "dark" ? [1, 1, 1] : [0.54, 0.29, 0.15],
+                }) : null;
                 if (anim && !document.hidden) { anim.start(); }
             } catch (e) {
                 anim = null; // art panel falls back to its CSS gradient

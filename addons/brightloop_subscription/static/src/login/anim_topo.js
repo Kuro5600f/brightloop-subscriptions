@@ -26,6 +26,7 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform float u_dpr;
+uniform vec3 u_color;
 
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 float snoise(vec2 v){
@@ -69,7 +70,7 @@ void main() {
     float topoLines = smoothstep(0.02, 0.00, triangleWave) * 0.45;
 
     float a = clamp(gridLines + topoLines, 0.0, 1.0);
-    gl_FragColor = vec4(vec3(a), a);
+    gl_FragColor = vec4(u_color * a, a);
 }`;
 
     function noop() {
@@ -118,6 +119,8 @@ void main() {
         const uRes = gl.getUniformLocation(prog, "u_resolution");
         const uTime = gl.getUniformLocation(prog, "u_time");
         const uDpr = gl.getUniformLocation(prog, "u_dpr");
+        // line colour as [r, g, b] in 0..1; white (the original) unless the light theme asks otherwise
+        gl.uniform3fv(gl.getUniformLocation(prog, "u_color"), (opts && opts.color) || [1, 1, 1]);
 
         canvas.setAttribute("aria-hidden", "true");
         canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none";

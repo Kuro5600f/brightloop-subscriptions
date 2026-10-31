@@ -47,7 +47,8 @@ class BlDiscountRule(models.Model):
         return lines
 
     def _base_amount(self, lines):
-        return sum(l.quantity * l.price_unit for l in lines)
+        # untaxed amount, also correct for tax-included prices (lines are not discounted yet)
+        return sum(lines.mapped('price_subtotal'))
 
     def _value_for(self, move):
         """Money value this rule would take off the move's untaxed amount."""

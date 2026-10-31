@@ -28,9 +28,10 @@ class BlPortal(CustomerPortal):
         })
 
     @http.route('/my/subscriptions/<int:sub_id>', type='http', auth='user', website=True)
-    def portal_my_subscription(self, sub_id, access_token=None, **kw):
+    def portal_my_subscription(self, sub_id, **kw):
         try:
-            sub = self._document_check_access('bl.subscription', sub_id, access_token)
+            # subscriptions have no share tokens: access is by login + record rules only
+            sub = self._document_check_access('bl.subscription', sub_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
         return request.render('brightloop_subscription.portal_my_subscription', {

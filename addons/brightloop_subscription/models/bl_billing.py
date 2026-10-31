@@ -36,7 +36,13 @@ class BlSubscriptionBilling(models.Model):
 
     def _apply_discount(self, move):
         """Apply the single most valuable eligible rule (no stacking)."""
-        rules = self.env['bl.discount.rule']._eligible(move)
+        Rule = self.env['bl.discount.rule']
+        rules = Rule._eligible(move)
+        limited = rules.filtered('max_uses')
+        if limited:
+            # lock, then re-check: two concurrent billing runs cannot both take the last use
+            self.env.cr.execute("SELECT id FROM bl_discount_rule WHERE id IN %s FOR UPDATE", [tuple(limited.ids)])
+            rules = Rule._eligible(move)
         if rules:
             best = max(rules, key=lambda r: r._value_for(move))
             best._apply_to(move)
@@ -46,21 +52,28 @@ class BlSubscriptionBilling(models.Model):
     @api.model
     def _run_billing(self, today=None, batch=500):
         today = today or fields.Date.context_today(self)
-        subs = self.search([
+        domain = [
             ('state', '=', 'active'),
             '|', ('next_invoice_date', '<=', today),
             '&', ('date_end', '<', today), ('plan_id.auto_close', '=', True),  # close even between periods
-        ], order='next_invoice_date, id', limit=batch)
+        ]
         created = errors = 0
-        for sub in subs:
-            try:
-                with self.env.cr.savepoint():
-                    count = sub._bill_until(today)
-                created += count
-            except Exception as e:  # noqa: BLE001 - one bad subscription must not stop the run
-                errors += 1
-                _logger.exception("Billing failed for %s", sub.name)
-                sub.billing_error = "%s (%s)" % (e, fields.Datetime.now())
+        done = []
+        while True:
+            # each subscription is visited once per run, so failing ones cannot starve the rest
+            subs = self.search(domain + [('id', 'not in', done)], order='next_invoice_date, id', limit=batch)
+            if not subs:
+                break
+            done += subs.ids
+            for sub in subs:
+                try:
+                    with self.env.cr.savepoint():
+                        count = sub._bill_until(today)
+                    created += count
+                except Exception as e:  # noqa: BLE001 - one bad subscription must not stop the run
+                    errors += 1
+                    _logger.exception("Billing failed for %s", sub.name)
+                    sub.billing_error = "%s (%s)" % (e, fields.Datetime.now())
         return {'invoices': created, 'errors': errors}
 
     def _bill_until(self, today):

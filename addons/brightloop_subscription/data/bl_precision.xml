@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fixed-amount discounts become a line %; 6 digits keeps them exact to the cent.
+         product's record is noupdate, so write it explicitly. -->
+    <function model="decimal.precision" name="write">
+        <value eval="[ref('product.decimal_discount')]"/>
+        <value eval="{'digits': 6}"/>
+    </function>
+</odoo>

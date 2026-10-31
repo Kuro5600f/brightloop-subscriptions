@@ -47,31 +47,25 @@ html[data-bl-theme="dark"] {
     transition: background-color 0.45s ease, color 0.45s ease;
 }
 
+/* full-bleed split screen: art fills the left half, form the right half */
 .bl-auth {
     min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: 24px 16px;
-    box-sizing: border-box;
+    min-height: 100dvh;
 }
 
 .bl-auth-card {
-    width: 100%;
-    max-width: 1040px;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
-    grid-template-columns: 1.1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     background: var(--bl-card);
-    border: 1px solid var(--bl-line);
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: var(--bl-shadow);
-    transition: background-color 0.45s ease, border-color 0.45s ease;
+    transition: background-color 0.45s ease;
 }
 
 /* ---------- art panel ---------- */
 .bl-auth-art {
     position: relative;
-    min-height: 640px;
+    min-height: 100%;
     background: var(--bl-art-bg);
     overflow: hidden;
     isolation: isolate;
@@ -100,9 +94,9 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
 .bl-art-copy {
     position: absolute;
     z-index: 2;
-    left: 40px;
-    right: 40px;
-    top: 48px;
+    left: clamp(24px, 6vw, 88px);
+    right: clamp(24px, 6vw, 88px);
+    top: 22%;
     color: var(--bl-art-text);
     pointer-events: none;
     transition: color 0.45s ease;
@@ -129,10 +123,13 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 48px clamp(24px, 5vw, 64px);
+    align-items: center;
+    padding: 48px clamp(24px, 6vw, 96px);
     background: var(--bl-panel);
     transition: background-color 0.45s ease;
 
+    /* keep the form a comfortable width in the middle of its half */
+    > * { width: 100%; max-width: 400px; }
     .oe_login_form, form { width: 100%; }
     a { color: var(--bl-accent-2); font-weight: 500; }
     a:hover { color: var(--bl-accent); }
@@ -342,9 +339,8 @@ html[data-bl-theme="dark"] .bl-theme-toggle {
 
 /* ---------- small screens: art becomes a banner above the form ---------- */
 @media (max-width: 860px) {
-    .bl-auth { padding: 16px; place-items: start center; }
-    .bl-auth-card { grid-template-columns: 1fr; border-radius: 20px; }
-    .bl-auth-art { min-height: 190px; }
+    .bl-auth-card { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .bl-auth-art { min-height: 200px; }
     .bl-art-copy { top: 28px; left: 24px; right: 24px; }
     .bl-art-tag { display: none; }
     .bl-auth-panel { padding: 28px 20px 32px; }

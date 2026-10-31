@@ -182,3 +182,8 @@ scaling path.
 - [Trade-offs and future work](docs/TRADEOFFS.md)
 - [Likely judge questions](docs/JUDGE_QA.md)
 - [Implementation plan](docs/superpowers/plans/2026-10-31-brightloop-subscription.md)
+
+## Team
+
+- [Kuro5600f](https://github.com/Kuro5600f)
+- [SoorajNairA](https://github.com/SoorajNairA)

@@ -3,6 +3,8 @@ from datetime import date
 from odoo import fields
 from odoo.tests import TransactionCase, new_test_user
 
+PASSWORD = 'Test#Pass2026'
+
 
 class BlCase(TransactionCase):
     @classmethod
@@ -11,8 +13,8 @@ class BlCase(TransactionCase):
         # isolate from seed data: tests bill and discount only their own records
         cls.env['bl.subscription'].search([('state', '=', 'active')]).write({'state': 'closed'})
         cls.env['bl.discount.rule'].search([]).write({'active': False})
-        cls.staff = new_test_user(cls.env, login='t_staff', groups='brightloop_subscription.group_bl_staff')
-        cls.admin = new_test_user(cls.env, login='t_admin', groups='brightloop_subscription.group_bl_admin')
+        cls.staff = new_test_user(cls.env, login='t_staff', password=PASSWORD, groups='brightloop_subscription.group_bl_staff')
+        cls.admin = new_test_user(cls.env, login='t_admin', password=PASSWORD, groups='brightloop_subscription.group_bl_admin')
         cls.Plan = cls.env['bl.plan']
         cls.Sub = cls.env['bl.subscription']
         cls.monthly = cls.Plan.create({'name': 'Monthly', 'billing_period': 'month'})

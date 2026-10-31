@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <!-- Simulated email delivery: Mailpit catches everything (http://localhost:8025) -->
+    <record id="mail_server_bl_mailpit" model="ir.mail_server">
+        <field name="name">Mailpit (simulated email)</field>
+        <field name="smtp_host">mailpit</field>
+        <field name="smtp_port">1025</field>
+        <field name="smtp_encryption">none</field>
+    </record>
+
     <!-- Demo accounts. Password for all: Brightloop#2026 -->
     <record id="user_bl_admin" model="res.users">
         <field name="name">Ada Admin</field>

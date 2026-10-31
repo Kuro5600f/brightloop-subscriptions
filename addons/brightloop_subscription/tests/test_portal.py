@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError
 from odoo.tests import HttpCase, new_test_user, tagged
 
-from .common import BlCase
+from .common import PASSWORD, BlCase
 
 
 @tagged('post_install', '-at_install')
@@ -9,7 +9,7 @@ class TestPortalAccess(BlCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.portal = new_test_user(cls.env, login='t_portal', groups='base.group_portal')
+        cls.portal = new_test_user(cls.env, login='t_portal', password=PASSWORD, groups='base.group_portal')
         cls.portal.partner_id.parent_id = cls.partner
         cls.own = cls.make_sub()
         cls.other = cls.Sub.create({

@@ -6,4 +6,5 @@ __pycache__/
 /change/
 /demo/*
 !/demo/brightloop-demo.webm
-/demo/
+/demo/*
+!/demo/brightloop-demo.webm

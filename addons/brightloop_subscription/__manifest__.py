@@ -10,6 +10,7 @@
         'security/ir.model.access.csv',
         'security/bl_portal_rules.xml',
         'views/bl_portal_templates.xml',
+        'views/bl_login_templates.xml',
         'views/bl_plan_views.xml',
         'data/bl_sequence.xml',
         'data/bl_config.xml',
@@ -25,6 +26,12 @@
     'assets': {
         'web.assets_backend': [
             'brightloop_subscription/static/src/dashboard/*',
+        ],
+        'web.assets_frontend': [
+            'brightloop_subscription/static/src/login/login.scss',
+            'brightloop_subscription/static/src/login/anim_topo.js',
+            'brightloop_subscription/static/src/login/anim_day.js',
+            'brightloop_subscription/static/src/login/login.js',
         ],
     },
     'application': True,

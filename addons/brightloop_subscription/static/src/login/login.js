@@ -24,10 +24,10 @@
             art.insertBefore(layer, art.querySelector(".bl-art-copy"));
             var anim = null;
             try {
-                // same topo lines in both themes: white on night blue, warm brown (#8a4a26) on cream
+                // same topo lines in both themes: white on charcoal, walnut (#704730) on warm paper
                 anim = factory ? factory(layer, {
                     reducedMotion: reduce,
-                    color: theme === "dark" ? [1, 1, 1] : [0.54, 0.29, 0.15],
+                    color: theme === "dark" ? [1, 1, 1] : [0.44, 0.28, 0.19],
                 }) : null;
                 if (anim && !document.hidden) { anim.start(); }
             } catch (e) {

@@ -1,126 +1,365 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
+
+    <!-- status pill: always text + icon + tone -->
+    <t t-name="brightloop_subscription.Dashboard.Pill">
+        <t t-set="st" t-value="status(pillStatus)"/>
+        <span t-attf-class="o_bl_pill o_bl_tone_{{st.tone}}">
+            <i t-attf-class="fa {{st.icon}}" aria-hidden="true"/>
+            <t t-esc="st.label"/>
+        </span>
+    </t>
+
     <t t-name="brightloop_subscription.Dashboard">
-        <div class="o_bl_dashboard o_action h-100 overflow-auto p-3 p-md-4">
-            <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
-                <div>
-                    <h2 class="mb-0">Finance Dashboard</h2>
-                    <small class="text-muted">Payments received in the selected period. Outstanding and overdue are as of today.</small>
-                </div>
-                <div class="d-flex flex-wrap align-items-end gap-2">
-                    <label class="d-flex flex-column small">From
-                        <input type="date" class="form-control form-control-sm" t-model="state.dateFrom" t-on-change="() => this.load()"/>
-                    </label>
-                    <label class="d-flex flex-column small">To
-                        <input type="date" class="form-control form-control-sm" t-model="state.dateTo" t-on-change="() => this.load()"/>
-                    </label>
-                    <button class="btn btn-sm btn-secondary" t-on-click="() => this.clearDates()">All time</button>
-                    <button class="btn btn-sm btn-primary" t-on-click="() => this.load()">Refresh</button>
-                </div>
-            </div>
+        <div class="o_bl_dashboard o_action h-100 overflow-auto" t-att-data-bl-theme="state.theme" t-on-keydown="(ev) => this.onRootKey(ev)">
+            <div t-attf-class="o_bl_shell {{state.selectedId ? 'o_bl_has_drawer' : ''}}">
+                <div class="o_bl_main">
 
-            <div t-if="state.error" class="alert alert-danger" role="alert">
-                <strong>Dashboard failed to load.</strong> <t t-esc="state.error"/>
-                <button class="btn btn-sm btn-link" t-on-click="() => this.load()">Try again</button>
-            </div>
+                    <!-- header -->
+                    <header class="o_bl_header">
+                        <div class="o_bl_hello">
+                            <h1 class="o_bl_greeting" t-esc="greeting"/>
+                            <p class="o_bl_sub mb-0">Here is what is happening with your subscriptions and invoices today.</p>
+                        </div>
+                        <div class="o_bl_actions">
+                            <div class="o_bl_range" role="group" aria-label="Reporting period">
+                                <label class="o_bl_field">
+                                    <span>From</span>
+                                    <input type="date" class="o_bl_input" t-model="state.dateFrom" t-on-change="() => this.load()"/>
+                                </label>
+                                <label class="o_bl_field">
+                                    <span>To</span>
+                                    <input type="date" class="o_bl_input" t-model="state.dateTo" t-on-change="() => this.load()"/>
+                                </label>
+                                <button t-if="state.dateFrom or state.dateTo" type="button" class="o_bl_btn o_bl_btn_ghost" t-on-click="() => this.clearDates()">All time</button>
+                            </div>
+                            <button type="button" class="o_bl_btn o_bl_btn_secondary" t-on-click="() => this.runBilling()" t-att-disabled="state.billing" t-att-aria-busy="state.billing ? 'true' : 'false'">
+                                <i t-attf-class="fa {{state.billing ? 'fa-circle-o-notch fa-spin' : 'fa-refresh'}}" aria-hidden="true"/>
+                                <t t-esc="state.billing ? 'Running billing…' : 'Run billing'"/>
+                            </button>
+                            <button type="button" class="o_bl_btn o_bl_btn_primary" t-on-click="() => this.createSubscription()">
+                                <i class="fa fa-plus" aria-hidden="true"/> Create Subscription
+                            </button>
+                            <button type="button" class="o_bl_btn o_bl_btn_icon" t-on-click="() => this.toggleTheme()"
+                                    t-att-aria-label="state.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+                                    t-att-title="state.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'">
+                                <i t-attf-class="fa {{state.theme === 'dark' ? 'fa-sun-o' : 'fa-moon-o'}}" aria-hidden="true"/>
+                            </button>
+                        </div>
+                    </header>
 
-            <!-- skeleton placeholders matching the real layout while the first data loads -->
-            <div t-if="state.loading and !state.data" class="o_bl_skeleton" aria-busy="true" aria-label="Loading figures">
-                <div class="row g-3 mb-4">
-                    <div class="col-6 col-lg-3" t-foreach="[1, 2, 3, 4]" t-as="i" t-key="i">
-                        <div class="card h-100"><div class="card-body">
-                            <span class="o_bl_sk o_bl_sk_line w-50"/>
-                            <span class="o_bl_sk o_bl_sk_big w-75 mt-2"/>
-                        </div></div>
+                    <div t-if="state.error" class="o_bl_alert" role="alert">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true"/>
+                        <div><strong>Dashboard failed to load.</strong> <t t-esc="state.error"/></div>
+                        <button type="button" class="o_bl_btn o_bl_btn_secondary" t-on-click="() => this.load()">Try again</button>
                     </div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-lg-6" t-foreach="[1, 2]" t-as="t" t-key="t">
-                        <div class="card h-100">
-                            <div class="card-header"><span class="o_bl_sk o_bl_sk_line w-25"/></div>
-                            <div class="card-body">
+
+                    <!-- skeleton placeholders matching the real layout while the first data loads -->
+                    <div t-if="state.loading and !state.data" class="o_bl_skeleton" aria-busy="true" aria-label="Loading figures">
+                        <div class="o_bl_kpis">
+                            <div class="o_bl_card o_bl_kpi" t-foreach="[1, 2, 3, 4]" t-as="i" t-key="i">
+                                <span class="o_bl_sk o_bl_sk_line w-50"/>
+                                <span class="o_bl_sk o_bl_sk_big w-75 mt-2"/>
+                            </div>
+                        </div>
+                        <div class="o_bl_charts">
+                            <div class="o_bl_card" t-foreach="[1, 2]" t-as="t" t-key="t">
+                                <span class="o_bl_sk o_bl_sk_line w-25"/>
                                 <span t-foreach="[1, 2, 3, 4, 5]" t-as="r" t-key="r" class="o_bl_sk o_bl_sk_row"/>
                             </div>
                         </div>
                     </div>
+
+                    <t t-if="state.data">
+                        <t t-set="d" t-value="state.data"/>
+
+                        <!-- KPI cards -->
+                        <section t-attf-class="o_bl_kpis {{state.loading ? 'o_bl_dim' : ''}}" aria-label="Key figures" t-att-aria-busy="state.loading ? 'true' : 'false'">
+                            <div t-foreach="kpis" t-as="k" t-key="k.key" t-attf-class="o_bl_card o_bl_kpi o_bl_kpi_{{k.key}}">
+                                <div class="o_bl_kpi_icon" aria-hidden="true"><i t-attf-class="fa {{k.icon}}"/></div>
+                                <div class="o_bl_kpi_body">
+                                    <div class="o_bl_kpi_label" t-esc="k.label"/>
+                                    <div class="o_bl_kpi_value o_bl_num" t-esc="k.value"/>
+                                    <div class="o_bl_kpi_sub" t-esc="k.sub"/>
+                                </div>
+                                <svg class="o_bl_spark" viewBox="0 0 72 28" width="72" height="28" aria-hidden="true" focusable="false">
+                                    <polyline t-att-points="sparkPoints(k.spark)" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </section>
+
+                        <div t-attf-class="o_bl_charts {{state.loading ? 'o_bl_dim' : ''}}">
+                            <!-- grouped bar chart -->
+                            <section class="o_bl_card o_bl_chart_card" aria-labelledby="o_bl_chart_title">
+                                <div class="o_bl_card_head">
+                                    <div>
+                                        <h2 id="o_bl_chart_title" class="o_bl_h2">Revenue &amp; Invoice Activity</h2>
+                                        <p class="o_bl_caption mb-0">Invoice value by issue month, last 6 months</p>
+                                    </div>
+                                    <ul class="o_bl_legend" aria-label="Legend">
+                                        <li t-foreach="series" t-as="s" t-key="s.key"><span t-attf-class="o_bl_dot o_bl_c_{{s.key}}" aria-hidden="true"/><t t-esc="s.label"/></li>
+                                    </ul>
+                                </div>
+                                <div t-if="chartEmpty" class="o_bl_empty">
+                                    <i class="fa fa-bar-chart" aria-hidden="true"/>
+                                    <p class="mb-0">No posted invoices in the last 6 months yet. Bars appear after the first billing run.</p>
+                                </div>
+                                <div t-else="" class="o_bl_chart_wrap">
+                                    <t t-set="c" t-value="chart"/>
+                                    <svg class="o_bl_chart" t-att-viewBox="'0 0 ' + CH.w + ' ' + CH.h" preserveAspectRatio="xMidYMid meet">
+                                        <g class="o_bl_grid" aria-hidden="true">
+                                            <t t-foreach="c.ticks" t-as="tk" t-key="tk.key">
+                                                <line t-att-x1="CH.left" t-att-x2="CH.w - CH.right" t-att-y1="tk.y" t-att-y2="tk.y"/>
+                                                <text t-att-x="CH.left - 8" t-att-y="tk.y + 4" text-anchor="end" t-esc="tk.label"/>
+                                            </t>
+                                        </g>
+                                        <g t-foreach="c.groups" t-as="g" t-key="g.key"
+                                           t-attf-class="o_bl_group {{state.tip and state.tip.gi === g.gi ? 'o_bl_active' : ''}}"
+                                           tabindex="0" role="img" t-att-aria-label="g.aria"
+                                           t-on-mouseenter="() => this.showTip(g)" t-on-mouseleave="() => this.hideTip()"
+                                           t-on-focus="() => this.showTip(g)" t-on-blur="() => this.hideTip()">
+                                            <rect class="o_bl_hit" t-att-x="g.x + 2" t-att-y="CH.top" t-att-width="g.w - 4" t-att-height="c.base - CH.top" rx="8"/>
+                                            <rect t-foreach="g.bars" t-as="b" t-key="b.key" t-attf-class="o_bl_bar o_bl_c_{{b.key}}"
+                                                  t-att-x="b.x" t-att-y="b.y" t-att-width="b.w" t-att-height="b.h" rx="3"/>
+                                            <text class="o_bl_xlabel" t-att-x="g.cx" t-att-y="CH.h - 8" text-anchor="middle" aria-hidden="true" t-esc="g.m.label"/>
+                                        </g>
+                                    </svg>
+                                    <div t-if="state.tip" class="o_bl_tip" t-attf-style="left: {{state.tip.left}}%" aria-hidden="true">
+                                        <div class="o_bl_tip_title"><t t-esc="state.tip.m.label"/> <t t-esc="state.tip.m.year"/></div>
+                                        <div t-foreach="series" t-as="s" t-key="s.key" class="o_bl_tip_row">
+                                            <span><span t-attf-class="o_bl_dot o_bl_c_{{s.key}}"/><t t-esc="s.label"/></span>
+                                            <span class="o_bl_num" t-esc="money(state.tip.m[s.key])"/>
+                                        </div>
+                                    </div>
+                                    <table class="visually-hidden">
+                                        <caption>Invoice value by month and status, last 6 months</caption>
+                                        <thead><tr><th scope="col">Month</th><th scope="col" t-foreach="series" t-as="s" t-key="s.key" t-esc="s.label"/></tr></thead>
+                                        <tbody>
+                                            <tr t-foreach="d.monthly" t-as="m" t-key="m_index">
+                                                <th scope="row"><t t-esc="m.label"/> <t t-esc="m.year"/></th>
+                                                <td t-foreach="series" t-as="s" t-key="s.key" t-esc="money(m[s.key])"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+
+                            <!-- donut -->
+                            <section class="o_bl_card o_bl_donut_card" aria-labelledby="o_bl_donut_title">
+                                <div class="o_bl_card_head">
+                                    <div>
+                                        <h2 id="o_bl_donut_title" class="o_bl_h2">Payment Status</h2>
+                                        <p class="o_bl_caption mb-0">Share of invoice value, last 6 months</p>
+                                    </div>
+                                </div>
+                                <t t-set="dn" t-value="donut"/>
+                                <div class="o_bl_donut_body">
+                                    <div class="o_bl_donut">
+                                        <svg viewBox="0 0 140 140" width="148" height="148" role="img"
+                                             t-att-aria-label="dn.total ? dn.paidPct + '% of invoice value paid' : 'No invoice value yet'">
+                                            <circle class="o_bl_ring" cx="70" cy="70" t-att-r="dn.r" fill="none" stroke-width="16"/>
+                                            <t t-if="dn.total">
+                                                <circle t-foreach="dn.segs" t-as="sg" t-key="sg.key" t-attf-class="o_bl_seg o_bl_c_{{sg.key}}"
+                                                        cx="70" cy="70" t-att-r="dn.r" fill="none" stroke-width="16"
+                                                        t-att-stroke-dasharray="sg.dash" t-att-stroke-dashoffset="sg.offset"
+                                                        transform="rotate(-90 70 70)"/>
+                                            </t>
+                                        </svg>
+                                        <div class="o_bl_donut_center" aria-hidden="true">
+                                            <span class="o_bl_donut_pct o_bl_num"><t t-esc="dn.paidPct"/>%</span>
+                                            <span class="o_bl_caption">Paid</span>
+                                        </div>
+                                    </div>
+                                    <ul class="o_bl_donut_legend">
+                                        <li t-foreach="dn.segs" t-as="sg" t-key="sg.key">
+                                            <span class="o_bl_dl_name"><span t-attf-class="o_bl_dot o_bl_c_{{sg.key}}" aria-hidden="true"/><t t-esc="sg.label"/></span>
+                                            <span class="o_bl_dl_val o_bl_num"><t t-esc="money(sg.value)"/> <span class="o_bl_caption">(<t t-esc="sg.pct"/>%)</span></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </section>
+                        </div>
+                    </t>
+
+                    <!-- invoices table -->
+                    <section class="o_bl_card o_bl_table_card" aria-labelledby="o_bl_inv_title">
+                        <t t-set="l" t-value="state.list"/>
+                        <div class="o_bl_card_head o_bl_table_head">
+                            <h2 id="o_bl_inv_title" class="o_bl_h2">All Invoices</h2>
+                            <div class="o_bl_search">
+                                <i class="fa fa-search" aria-hidden="true"/>
+                                <input type="search" class="o_bl_input" placeholder="Search invoice or client…" aria-label="Search invoices by number or client"
+                                       t-att-value="l.search" t-on-input="(ev) => this.onSearchInput(ev)"/>
+                                <button t-if="l.search" type="button" class="o_bl_search_clear" aria-label="Clear search" t-on-click="() => this.clearSearch()"><i class="fa fa-times" aria-hidden="true"/></button>
+                            </div>
+                        </div>
+                        <div class="o_bl_pills" role="group" aria-label="Filter by status">
+                            <button t-foreach="filters" t-as="f" t-key="f.key" type="button"
+                                    t-attf-class="o_bl_filter {{l.status === f.key ? 'o_bl_on' : ''}}"
+                                    t-att-aria-pressed="l.status === f.key ? 'true' : 'false'"
+                                    t-on-click="() => this.setFilter(f.key)">
+                                <t t-esc="f.label"/> <span class="o_bl_count o_bl_num" t-esc="l.counts[f.key] || 0"/>
+                            </button>
+                        </div>
+
+                        <div t-if="l.error" class="o_bl_alert" role="alert">
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"/>
+                            <div><strong>Invoices failed to load.</strong> <t t-esc="l.error"/></div>
+                            <button type="button" class="o_bl_btn o_bl_btn_secondary" t-on-click="() => this.loadList()">Try again</button>
+                        </div>
+
+                        <div t-if="l.loading and !l.loaded" class="o_bl_table_sk" aria-busy="true" aria-label="Loading invoices">
+                            <span t-foreach="[1, 2, 3, 4, 5, 6]" t-as="r" t-key="r" class="o_bl_sk o_bl_sk_row"/>
+                        </div>
+                        <div t-elif="l.loaded and !l.rows.length" class="o_bl_empty">
+                            <i class="fa fa-inbox" aria-hidden="true"/>
+                            <p class="mb-0" t-esc="emptyText"/>
+                        </div>
+                        <div t-elif="l.loaded" t-attf-class="o_bl_table_wrap {{l.loading ? 'o_bl_dim' : ''}}" t-att-aria-busy="l.loading ? 'true' : 'false'">
+                            <table class="o_bl_table">
+                                <caption class="visually-hidden">Customer invoices, <t t-esc="pageInfo"/>. Press Enter on a row to open its details.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Invoice</th>
+                                        <th scope="col">Client</th>
+                                        <th scope="col">Issue date</th>
+                                        <th scope="col">Due date</th>
+                                        <th scope="col" class="o_bl_right">Amount</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="l.rows" t-as="row" t-key="row.id" tabindex="0"
+                                        t-attf-class="o_bl_row {{state.selectedId === row.id ? 'o_bl_selected' : ''}}"
+                                        t-att-aria-current="state.selectedId === row.id ? 'true' : 'false'"
+                                        t-on-click="(ev) => this.openInvoice(row, ev)" t-on-keydown="(ev) => this.onRowKey(ev, row)">
+                                        <td class="o_bl_inv_no" data-label="Invoice" t-esc="row.name"/>
+                                        <td data-label="Client">
+                                            <div class="o_bl_client">
+                                                <span class="o_bl_avatar" aria-hidden="true" t-esc="initial(row.partner)"/>
+                                                <span class="o_bl_client_txt">
+                                                    <span class="o_bl_client_name" t-esc="row.partner"/>
+                                                    <span t-if="row.subscription" class="o_bl_caption" t-esc="row.subscription"/>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="o_bl_num" data-label="Issue date" t-esc="fmtDate(row.invoice_date)"/>
+                                        <td class="o_bl_num" data-label="Due date" t-esc="fmtDate(row.due_date)"/>
+                                        <td class="o_bl_right o_bl_num o_bl_amount" data-label="Amount" t-esc="money(row.amount, l.currency)"/>
+                                        <td data-label="Status"><t t-call="brightloop_subscription.Dashboard.Pill"><t t-set="pillStatus" t-value="row.status"/></t></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <nav t-if="l.loaded and l.total" class="o_bl_pager" aria-label="Invoice pages">
+                            <span class="o_bl_caption o_bl_num" aria-live="polite" t-esc="pageInfo"/>
+                            <div class="o_bl_pager_btns">
+                                <button type="button" class="o_bl_btn o_bl_btn_icon" aria-label="Previous page" t-att-disabled="!hasPrev or l.loading" t-on-click="() => this.page(-1)"><i class="fa fa-chevron-left" aria-hidden="true"/></button>
+                                <button type="button" class="o_bl_btn o_bl_btn_icon" aria-label="Next page" t-att-disabled="!hasNext or l.loading" t-on-click="() => this.page(1)"><i class="fa fa-chevron-right" aria-hidden="true"/></button>
+                            </div>
+                        </nav>
+                    </section>
                 </div>
+
+                <!-- invoice details drawer -->
+                <t t-if="state.selectedId">
+                    <div class="o_bl_backdrop" aria-hidden="true" t-on-click="() => this.closeDrawer()"/>
+                    <aside class="o_bl_drawer" t-ref="drawer" aria-labelledby="o_bl_drawer_title" role="region">
+                        <t t-set="v" t-value="state.detail"/>
+                        <div class="o_bl_drawer_head">
+                            <h2 id="o_bl_drawer_title" class="o_bl_h2">Invoice Details</h2>
+                            <button type="button" class="o_bl_btn o_bl_btn_icon o_bl_drawer_close" aria-label="Close invoice details (Esc)" t-on-click="() => this.closeDrawer()">
+                                <i class="fa fa-times" aria-hidden="true"/>
+                            </button>
+                        </div>
+
+                        <div t-if="state.detailLoading" class="o_bl_drawer_body" aria-busy="true" aria-label="Loading invoice">
+                            <span class="o_bl_sk o_bl_sk_big w-50"/>
+                            <span t-foreach="[1, 2, 3, 4, 5, 6, 7]" t-as="r" t-key="r" class="o_bl_sk o_bl_sk_row"/>
+                        </div>
+                        <div t-elif="state.detailError" class="o_bl_drawer_body">
+                            <div class="o_bl_alert" role="alert">
+                                <i class="fa fa-exclamation-circle" aria-hidden="true"/>
+                                <div t-esc="state.detailError"/>
+                            </div>
+                        </div>
+                        <div t-elif="v" class="o_bl_drawer_body">
+                            <div class="o_bl_drawer_title">
+                                <div>
+                                    <div class="o_bl_inv_big" t-esc="v.name"/>
+                                    <div class="o_bl_caption">Issued <t t-esc="fmtDate(v.invoice_date)"/> · Due <t t-esc="fmtDate(v.due_date)"/></div>
+                                </div>
+                                <t t-call="brightloop_subscription.Dashboard.Pill"><t t-set="pillStatus" t-value="v.status"/></t>
+                            </div>
+
+                            <div class="o_bl_drawer_actions">
+                                <button type="button" class="o_bl_btn o_bl_btn_primary" t-on-click="() => this.openRecord('account.move', v.id)">
+                                    <i class="fa fa-external-link" aria-hidden="true"/> Open invoice
+                                </button>
+                                <button t-if="v.subscription_id" type="button" class="o_bl_btn o_bl_btn_secondary" t-on-click="() => this.openRecord('bl.subscription', v.subscription_id)">
+                                    <i class="fa fa-repeat" aria-hidden="true"/> View subscription
+                                </button>
+                            </div>
+
+                            <div class="o_bl_client_block">
+                                <span class="o_bl_avatar o_bl_avatar_lg" aria-hidden="true" t-esc="initial(v.partner.name)"/>
+                                <div class="o_bl_client_txt">
+                                    <span class="o_bl_client_name" t-esc="v.partner.name"/>
+                                    <span t-if="v.partner.email" class="o_bl_caption" t-esc="v.partner.email"/>
+                                    <span t-if="v.partner.phone" class="o_bl_caption" t-esc="v.partner.phone"/>
+                                    <span t-if="v.subscription" class="o_bl_caption"><i class="fa fa-repeat me-1" aria-hidden="true"/><t t-esc="v.subscription"/></span>
+                                </div>
+                            </div>
+
+                            <!-- print-like preview: always light paper -->
+                            <article class="o_bl_paper" aria-label="Invoice preview">
+                                <div class="o_bl_paper_band" aria-hidden="true"/>
+                                <div class="o_bl_paper_top">
+                                    <div>
+                                        <div class="o_bl_paper_h">INVOICE</div>
+                                        <div class="o_bl_paper_no" t-esc="v.name"/>
+                                    </div>
+                                    <div class="o_bl_paper_to">
+                                        <div class="o_bl_paper_lbl">Bill to</div>
+                                        <strong t-esc="v.partner.name"/>
+                                        <div t-if="v.partner.address" t-esc="v.partner.address"/>
+                                        <div t-if="v.partner.email" t-esc="v.partner.email"/>
+                                    </div>
+                                </div>
+                                <div class="o_bl_paper_meta">
+                                    <div><div class="o_bl_paper_lbl">Issue date</div><strong class="o_bl_num" t-esc="fmtDate(v.invoice_date)"/></div>
+                                    <div><div class="o_bl_paper_lbl">Due date</div><strong class="o_bl_num" t-esc="fmtDate(v.due_date)"/></div>
+                                    <div><div class="o_bl_paper_lbl">Status</div><t t-call="brightloop_subscription.Dashboard.Pill"><t t-set="pillStatus" t-value="v.status"/></t></div>
+                                </div>
+                                <table class="o_bl_paper_lines">
+                                    <thead>
+                                        <tr><th scope="col">Item</th><th scope="col" class="o_bl_right">Qty</th><th scope="col" class="o_bl_right">Unit price</th><th scope="col" class="o_bl_right">Amount</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-if="!v.lines.length"><td colspan="4" class="o_bl_paper_lbl">No invoice lines.</td></tr>
+                                        <tr t-foreach="v.lines" t-as="ln" t-key="ln_index">
+                                            <td>
+                                                <t t-esc="ln.name"/>
+                                                <div t-if="ln.discount" class="o_bl_paper_lbl"><t t-esc="num(ln.discount, 0)"/>% discount</div>
+                                            </td>
+                                            <td class="o_bl_right o_bl_num" t-esc="num(ln.quantity, ln.quantity % 1 ? 2 : 0)"/>
+                                            <td class="o_bl_right o_bl_num" t-esc="money(ln.price_unit, v.currency_symbol)"/>
+                                            <td class="o_bl_right o_bl_num" t-esc="money(ln.subtotal, v.currency_symbol)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <dl class="o_bl_paper_totals">
+                                    <div><dt>Subtotal</dt><dd class="o_bl_num" t-esc="money(v.amount_untaxed, v.currency_symbol)"/></div>
+                                    <div><dt>Tax</dt><dd class="o_bl_num" t-esc="money(v.amount_tax, v.currency_symbol)"/></div>
+                                    <div class="o_bl_paper_total"><dt>Total</dt><dd class="o_bl_num" t-esc="money(v.amount_total, v.currency_symbol)"/></div>
+                                    <div t-if="v.state === 'posted' and v.residual !== v.amount_total"><dt>Amount due</dt><dd class="o_bl_num" t-esc="money(v.residual, v.currency_symbol)"/></div>
+                                </dl>
+                            </article>
+                        </div>
+                    </aside>
+                </t>
             </div>
-
-            <t t-if="state.data">
-                <t t-set="d" t-value="state.data"/>
-                <div class="row g-3 mb-4" t-att-class="{'opacity-50': state.loading}">
-                    <div class="col-6 col-lg-3">
-                        <div class="card h-100 o_bl_kpi" role="button" t-on-click="() => this.openAction('brightloop_subscription.action_bl_subscription')">
-                            <div class="card-body">
-                                <div class="text-muted small">Active subscriptions</div>
-                                <div class="fs-2 fw-bold" t-esc="d.active_count"/>
-                                <div class="small text-muted"><t t-esc="d.due_count"/> due for billing</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card h-100 o_bl_kpi border-success">
-                            <div class="card-body">
-                                <div class="text-muted small">Revenue received</div>
-                                <div class="fs-2 fw-bold text-success" t-esc="money(d.revenue)"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card h-100 o_bl_kpi border-warning" role="button" t-on-click="() => this.openAction('brightloop_subscription.action_bl_outstanding')">
-                            <div class="card-body">
-                                <div class="text-muted small">Amount outstanding</div>
-                                <div class="fs-2 fw-bold" t-esc="money(d.outstanding)"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card h-100 o_bl_kpi border-danger" role="button" t-on-click="() => this.openAction('brightloop_subscription.action_bl_overdue')">
-                            <div class="card-body">
-                                <div class="text-muted small">Overdue invoices</div>
-                                <div class="fs-2 fw-bold text-danger" t-esc="d.overdue_count"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-lg-6">
-                        <div class="card h-100">
-                            <div class="card-header fw-bold">Overdue invoices</div>
-                            <div t-if="!d.overdue.length" class="card-body text-muted"><i class="fa fa-check-circle text-success me-1" aria-hidden="true"/>Nothing overdue.</div>
-                            <table t-else="" class="table table-hover mb-0">
-                                <thead><tr><th>Invoice</th><th>Customer</th><th>Due</th><th class="text-end">Amount due</th></tr></thead>
-                                <tbody>
-                                    <tr t-foreach="d.overdue" t-as="o" t-key="o.id" role="button" t-on-click="() => this.open('account.move', o.id)">
-                                        <td t-esc="o.name"/>
-                                        <td t-esc="o.partner"/>
-                                        <td><t t-esc="o.due_date"/> <span class="badge text-bg-danger ms-1"><t t-esc="o.days_late"/>d late</span></td>
-                                        <td class="text-end" t-esc="money(o.residual)"/>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="card h-100">
-                            <div class="card-header fw-bold">Recent payments</div>
-                            <div t-if="!d.recent_payments.length" class="card-body text-muted">No payments in this period.</div>
-                            <table t-else="" class="table table-hover mb-0">
-                                <thead><tr><th>Payment</th><th>Customer</th><th>Date</th><th class="text-end">Amount</th></tr></thead>
-                                <tbody>
-                                    <tr t-foreach="d.recent_payments" t-as="p" t-key="p.id" role="button" t-on-click="() => this.open('account.payment', p.id)">
-                                        <td t-esc="p.name"/>
-                                        <td t-esc="p.partner"/>
-                                        <td t-esc="p.date"/>
-                                        <td class="text-end text-success" t-esc="money(p.amount)"/>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </t>
         </div>
     </t>
 </templates>

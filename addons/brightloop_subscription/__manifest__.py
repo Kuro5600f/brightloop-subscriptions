@@ -25,6 +25,9 @@
         'data/bl_seed.xml',
     ],
     'assets': {
+        'web._assets_primary_variables': [
+            ('prepend', 'brightloop_subscription/static/src/brand/primary_variables.scss'),
+        ],
         'web.assets_backend': [
             'brightloop_subscription/static/src/dashboard/*',
             'brightloop_subscription/static/src/splash/*',

@@ -1,53 +1,51 @@
-/* Brightloop login / sign-up / reset shell. Tokens per theme; everything scoped to .bl-auth-body. */
+/* Brightloop login / sign-up / reset shell. Tokens from UIUX/DESIGN_SYSTEM.md; everything scoped to .bl-auth-body. */
 
 html[data-bl-theme="light"] {
-    --bl-bg: #f4eee6;
-    --bl-card: #fffaf4;
-    --bl-panel: #fffaf4;
-    --bl-text: #1f1b16;
-    --bl-muted: #5f574e;
-    --bl-line: #e6dbcf;
-    --bl-field: #f7f0e8;
-    --bl-field-focus: #ffffff;
-    --bl-accent: #c2410c;
-    --bl-accent-2: #dd5a12;
-    --bl-ring: rgba(194, 65, 12, 0.35);
-    --bl-error: #b42318;
-    --bl-ok: #1f7a4d;
-    --bl-art-bg: radial-gradient(circle at 30% 20%, #fbf5ec 0%, #f0e2d1 75%);
-    --bl-art-text: #1b2440;
-    --bl-shadow: 0 30px 80px -30px rgba(80, 50, 20, 0.35);
-    --bl-glass: rgba(255, 251, 246, 0.42);
-    --bl-glass-line: rgba(255, 255, 255, 0.65);
-    --bl-glass-shadow: 0 24px 60px -20px rgba(90, 55, 25, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    --bl-field: rgba(255, 255, 255, 0.55);
-    --bl-field-focus: rgba(255, 255, 255, 0.85);
-    --bl-line: rgba(140, 110, 80, 0.25);
+    --bl-bg: #F8F6F0;
+    --bl-card: #FFFEFA;
+    --bl-panel: #FFFEFA;
+    --bl-text: #28231E;
+    --bl-muted: #605D55;
+    --bl-accent: #36583D;
+    --bl-accent-2: #44704C;
+    --bl-on-accent: #FFFFFF;
+    --bl-link: #36583D;
+    --bl-ring: rgba(54, 88, 61, 0.35);
+    --bl-error: #A33B32;
+    --bl-ok: #32734B;
+    --bl-art-bg: radial-gradient(circle at 30% 20%, #FFFEFA 0%, #F1F0E8 75%);
+    --bl-art-text: #28231E;
+    --bl-shadow: 0 30px 80px -30px rgba(40, 35, 30, 0.3);
+    --bl-glass: rgba(255, 254, 250, 0.45);
+    --bl-glass-line: rgba(255, 255, 255, 0.7);
+    --bl-glass-shadow: 0 24px 60px -20px rgba(40, 35, 30, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    --bl-field: rgba(255, 255, 255, 0.6);
+    --bl-field-focus: rgba(255, 255, 255, 0.9);
+    --bl-line: #DEDCD2;
 }
 
 html[data-bl-theme="dark"] {
-    --bl-bg: #080b12;
-    --bl-card: #0f1420;
-    --bl-panel: #0f1420;
-    --bl-text: #eef1f7;
-    --bl-muted: #a4adbd;
-    --bl-line: #222a3a;
-    --bl-field: #151c2b;
-    --bl-field-focus: #1a2335;
-    --bl-accent: #c2410c;
-    --bl-accent-2: #e2601a;
-    --bl-ring: rgba(244, 162, 97, 0.45);
-    --bl-error: #ff8f84;
-    --bl-ok: #6fd3a0;
-    --bl-art-bg: radial-gradient(circle at 30% 20%, #1b2236 0%, #06080d 70%);
-    --bl-art-text: #f3f5fa;
+    --bl-bg: #141416;
+    --bl-card: #202024;
+    --bl-panel: #202024;
+    --bl-text: #F5F1EB;
+    --bl-muted: #C4C2C0;
+    --bl-accent: #E2B968;
+    --bl-accent-2: #EBC983;
+    --bl-on-accent: #21180E;
+    --bl-link: #E2B968;
+    --bl-ring: rgba(226, 185, 104, 0.45);
+    --bl-error: #F1A0AA;
+    --bl-ok: #8BD8A1;
+    --bl-art-bg: radial-gradient(circle at 30% 20%, #29292E 0%, #141416 70%);
+    --bl-art-text: #F5F1EB;
     --bl-shadow: 0 30px 90px -30px rgba(0, 0, 0, 0.8);
-    --bl-glass: rgba(16, 22, 36, 0.42);
-    --bl-glass-line: rgba(255, 255, 255, 0.14);
-    --bl-glass-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    --bl-glass: rgba(32, 32, 36, 0.5);
+    --bl-glass-line: rgba(255, 255, 255, 0.12);
+    --bl-glass-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     --bl-field: rgba(255, 255, 255, 0.06);
     --bl-field-focus: rgba(255, 255, 255, 0.1);
-    --bl-line: rgba(255, 255, 255, 0.14);
+    --bl-line: #44434A;
 }
 
 .bl-auth-body {
@@ -55,7 +53,7 @@ html[data-bl-theme="dark"] {
     margin: 0;
     background: var(--bl-bg);
     color: var(--bl-text);
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    font-family: "Manrope", "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
     transition: background-color 0.45s ease, color 0.45s ease;
 }
 
@@ -154,7 +152,7 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     /* keep the form a comfortable width in the middle of its half */
     > * { width: 100%; max-width: 420px; }
     .oe_login_form, form { width: 100%; }
-    a { color: var(--bl-accent-2); font-weight: 500; }
+    a { color: var(--bl-link); font-weight: 500; }
     a:hover { color: var(--bl-accent); }
     .text-muted, small { color: var(--bl-muted) !important; }
 }
@@ -175,7 +173,7 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     height: 32px;
     border-radius: 10px;
     background: linear-gradient(135deg, var(--bl-accent), var(--bl-accent-2));
-    color: #fff;
+    color: var(--bl-on-accent);
     font-weight: 700;
 }
 
@@ -342,7 +340,7 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     border-radius: 14px;
     font-size: 1rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--bl-on-accent);
     background: linear-gradient(90deg, var(--bl-accent), var(--bl-accent-2));
     box-shadow: 0 10px 24px -12px var(--bl-accent);
     transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
@@ -358,8 +356,8 @@ html[data-bl-theme="dark"] .bl-auth-art::after {
     height: 18px;
     margin-left: 10px;
     vertical-align: -3px;
-    border: 2px solid rgba(255, 255, 255, 0.45);
-    border-top-color: #fff;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
     border-radius: 50%;
     animation: bl-spin 0.7s linear infinite;
 }

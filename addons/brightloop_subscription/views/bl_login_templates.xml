@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Brand fonts on every page (backend, portal, login). Offline they fall back to Inter / system fonts. -->
+    <template id="layout_fonts_bl" inherit_id="web.layout" priority="99">
+        <xpath expr="//head" position="inside">
+            <link rel="preconnect" href="https://fonts.googleapis.com"/>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=Manrope:wght@400;500;600;700&amp;display=swap"/>
+        </xpath>
+    </template>
+
     <!-- Shared shell for login, sign-up and reset pages: animated art panel + form panel -->
     <template id="login_layout_bl" inherit_id="web.login_layout" priority="99">
         <xpath expr="//t[@t-set='body_classname']" position="attributes">

@@ -1,0 +1,10 @@
+// Brightloop brand for every Odoo screen (light): sage / walnut / amber from UIUX/DESIGN_SYSTEM.md.
+// Loaded before Odoo's own primary variables, so these win over its !default values.
+$o-community-color: #36583D;
+$o-brand-odoo: #36583D;
+$o-brand-primary: #36583D;
+$o-action: #36583D;
+$o-success: #32734B;
+$o-warning: #946009;
+$o-danger: #A33B32;
+$o-system-fonts: ("Manrope", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif);
